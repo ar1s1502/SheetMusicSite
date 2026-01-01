@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+{%load static%}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Aaron Teng's music website, Computer Science & Music nerd. A cappella arrang    ements, original classical compositions">
+  
+    <title>Aaron Teng | Music Website</title>
+  
+    <link rel="stylesheet" href="{% static 'sheetmusic/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"  integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://cdn.plyr.io/3.8.3/plyr.css" /> video/audio CSS plugin -->
+    
+</head>
+<body>
+    <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
+    <script src="{% static 'sheetmusic/js/sheetmusic.js' %}" type="module"></script>
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">(Logo here)</a>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About Me</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"  aria-current="page" href="/">A Cappella</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Inquiries</a>
+                </li>
+        </div>
+    </nav>
+    <h1>Arrangements</h1>
+
+    {{ pdf_dict|json_script:"arr-data" }}
+    {%if arrangements %}
+        <table class="table no-header table-hover">
+            <tr>
+                <th style="width:70%">card</th> 
+                <th ></th>
+            </tr>
+            {% for arr in arrangements %}
+                <div class="row justify-content-center arr-row">
+                    <div class="col-5" style="padding-left: 8vw">
+                        <div class="card border-3 justify-content-center canvas-card" >
+                        <a href="{{arr.id}}/" class="">
+                            <canvas class="small-canvas" id="canvas-{{arr.id}}"></canvas>
+                        </a>
+                        </div>
+                    </div>
+                    <div class="col-5" style="padding-right: 8vw">
+                        <div class="card border-0">
+                            <h5 class="card-title">{{ arr.title }} - {{ arr.artist }}</h5>
+                            <h5>SMATBaB</h5>
+                            <audio controls style="width:100%">
+                                <source src="{% static arr.mp3_path %}" type="audio/mp3"/>
+                                Your browser doesn't support mp3 audio
+                            </audio>
+                            <a href="{{arr.id}}/" class="btn btn-primary" style="border-radius:20px">View this arrangement</a>
+                        </div>
+                    </div>
+                </div>
+                <tr>
+                    <td class="pdfTd" style="margin-left:8vw">
+                        <!-- <a href="{% static arr.file_path %}">{{arr.title}}</a>  -->
+                        <a href="#" class="">
+                            <!-- <canvas id="canvas-{{arr.id}}"></canvas> -->
+                        </a>
+                    </td>
+                    <td style="margin-right:8vw">
+                        <div class="card border-0" style="padding-right:20vw">
+                            <h5 class="card-title">{{ arr.title }} - {{ arr.artist }}</h5>
+                            <h5>{{arr.instr}}</h5>
+                            <audio controls style="width: 100%">
+                                <source src="{% static arr.mp3_path %}" type="audio/mp3"/>
+                                Your browser doesn't support mp3 audio
+                            </audio>
+                            <a href="#" class="btn btn-primary" style="border-radius:20px">Buy this arrangement</a>
+                        </div>
+                    </td>
+                    
+                </tr>
+            {% endfor %}
+        </table>
+        <!-- <ul class="arr-list">
+            {%for arr in arrangements%}
+                <li>
+                    <a href="{% static arr.file_path %}">{{arr.title}}</a>
+                </li>
+            {% endfor %}
+        </ul> -->
+    {%else%}
+        <p>Sorry, no arrangements listed.</p>
+    {% endif %}
+</body>

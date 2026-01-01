@@ -1,0 +1,25 @@
+ul {
+    list-style-type: none;
+}
+
+.no-header th{
+    display: none;
+}
+
+.canvas-card {
+    transition: 0.3s
+}
+
+.arr-row {
+    padding-bottom: 20px;
+}
+
+.canvas-card:hover{
+    box-shadow: 5px 4px rgba(0,0,0,0.5)
+
+}
+
+.small-canvas {
+    max-width:100%;
+    height: auto;
+}
