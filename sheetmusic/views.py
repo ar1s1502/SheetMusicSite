@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from .models import Sheet
-from django.http import HttpResponse
 import os
 import base64
 
@@ -17,7 +16,7 @@ def index(request):
         current_directory = os.getcwd()
         print("current directory:", current_directory)
         #since unix file:// paths are not allowed to be accessed by browser, must send the pdf as bytes
-        #must encode pdf as a ascii byte string to make it json serializable
+        #must encode pdf as ascii byte string to make it json serializable
         encoded_bytes = _serializePDF(arr)    
         pdf_dict[arr.id] = encoded_bytes
     context = {

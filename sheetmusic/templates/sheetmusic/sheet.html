@@ -36,6 +36,10 @@
     {{sheet_bytes|json_script:"arr-data"}}
 
     <h1>{{sheet.title}}</h1>
+    <audio controls style="width:100%">
+        <source src="{% static sheet.mp3_path %}" type="audio/mp3"/>
+        Your browser doesn't support mp3 audio
+    </audio>
     <button type="button" class="btn btn-outline-secondary" id="prevPage">
         <!-- bootstrap icon, arrow left -->
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-left" viewBox="0 0 16 16">
@@ -48,23 +52,31 @@
             <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671"/>
         </svg>
     </button>
-    <div class="card border-3 justify-content-center canvas-card" >
-        <canvas id="sheetcanvas"></canvas>
-        
+    <div class="container ">
+        <div class="row justify-content-center">
+            <div class="col-8" style="padding-left: 1.5vw;">
+                <div class="card border-3 justify-content-center" id="canvas-card" >
+                    <canvas id="sheetcanvas"></canvas>
+                </div>
+            </div>
+            <div class="col-5 col-sm-3" id="info-col" style="padding-right: 5vw;">
+                <ul>
+                    <li>
+                        <p>Artist: {{sheet.artist}}</p>
+                    </li>
+                    <li>
+                        {{sheet.instr}}
+                    </li>
+                    {% if sheet.synopsis %}
+                        <li>
+                            {{sheet.synopsis}}
+                        </li>
+                    {% endif %}
+                    <a href="#" class="btn btn-primary" style="border-radius:20px">Buy this arrangement</a>
+                </ul>
+            </div>
         </div>
-    <ul>
-        <li>
-            <h4>{{sheet.title}} - {{sheet.artist}}</h4>
-        </li>
-        <li>
-            {{sheet.instr}}
-        </li>
-        {% if sheet.synopsis %}
-            <li>
-                {{sheet.synopsis}}
-            </li>
-        {% endif %}
-    </ul>
+    </div>
 
     
 </body>

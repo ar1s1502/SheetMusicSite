@@ -44,7 +44,7 @@
             {% for arr in arrangements %}
                 <div class="row justify-content-center arr-row">
                     <div class="col-5" style="padding-left: 8vw">
-                        <div class="card border-3 justify-content-center canvas-card" >
+                        <div class="card border-3 justify-content-center" id="canvas-card" >
                         <a href="{{arr.id}}/" class="">
                             <canvas class="small-canvas" id="canvas-{{arr.id}}"></canvas>
                         </a>
@@ -53,7 +53,7 @@
                     <div class="col-5" style="padding-right: 8vw">
                         <div class="card border-0">
                             <h5 class="card-title">{{ arr.title }} - {{ arr.artist }}</h5>
-                            <h5>SMATBaB</h5>
+                            <h5>{{arr.instr}}</h5>
                             <audio controls style="width:100%">
                                 <source src="{% static arr.mp3_path %}" type="audio/mp3"/>
                                 Your browser doesn't support mp3 audio
@@ -62,26 +62,6 @@
                         </div>
                     </div>
                 </div>
-                <tr>
-                    <td class="pdfTd" style="margin-left:8vw">
-                        <!-- <a href="{% static arr.file_path %}">{{arr.title}}</a>  -->
-                        <a href="#" class="">
-                            <!-- <canvas id="canvas-{{arr.id}}"></canvas> -->
-                        </a>
-                    </td>
-                    <td style="margin-right:8vw">
-                        <div class="card border-0" style="padding-right:20vw">
-                            <h5 class="card-title">{{ arr.title }} - {{ arr.artist }}</h5>
-                            <h5>{{arr.instr}}</h5>
-                            <audio controls style="width: 100%">
-                                <source src="{% static arr.mp3_path %}" type="audio/mp3"/>
-                                Your browser doesn't support mp3 audio
-                            </audio>
-                            <a href="#" class="btn btn-primary" style="border-radius:20px">Buy this arrangement</a>
-                        </div>
-                    </td>
-                    
-                </tr>
             {% endfor %}
         </table>
         <!-- <ul class="arr-list">

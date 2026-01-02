@@ -3,25 +3,28 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@latest/bu
 
 const pdf_dict = JSON.parse(document.getElementById("arr-data").textContent);
 
+var pgnum = 1,
+    scale = 0.75,
+    canvas_id,
+    canvas,
+    firstpage;
+
 async function loadPDF(id, pdf_bytes) {
     try {
-        const decoded_bytes = atob(pdf_bytes);
-        const loadingTask = pdfjsLib.getDocument({data: decoded_bytes});
+        const loadingTask = pdfjsLib.getDocument({data: pdf_bytes});
         const pdf = await loadingTask.promise;
         console.log("pdf of id " + id + " loaded")
 
-        const pgnum = 1;
-        const firstpage = await pdf.getPage(pgnum);
+        firstpage = await pdf.getPage(pgnum);
 
         //configuring html canvas to display firstpage
-        const scale = 0.75;
         const viewport = firstpage.getViewport({
             scale: scale, 
         })
         const outputScale = window.devicePixelRatio || 1;
 
-        const canvas_id = 'canvas-'+id;
-        const canvas = document.getElementById(canvas_id);
+        canvas_id = 'canvas-'+id;
+        canvas = document.getElementById(canvas_id);
         const context = canvas.getContext('2d');
         canvas.height = Math.floor(outputScale * viewport.height / 2);
         canvas.width = Math.floor(outputScale * viewport.width );
@@ -44,7 +47,7 @@ async function loadPDF(id, pdf_bytes) {
 }
 
 for (const [id, pdf_bytes] of Object.entries(pdf_dict)) {
-    loadPDF(id, pdf_bytes)
+    loadPDF(id, atob(pdf_bytes))
 }
 
 
