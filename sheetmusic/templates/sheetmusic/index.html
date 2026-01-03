@@ -25,7 +25,7 @@
                     <a class="nav-link" href="#">About Me</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link"  aria-current="page" href="/">A Cappella</a>
+                    <a class="nav-link"  aria-current="page" href="#">A Cappella</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Inquiries</a>
@@ -42,7 +42,7 @@
                 <th ></th>
             </tr>
             {% for arr in arrangements %}
-                <div class="row justify-content-center arr-row">
+                <div class="row justify-content-center pb-4">
                     <div class="col-5" style="padding-left: 8vw">
                         <div class="card border-3 justify-content-center" id="canvas-card" >
                         <a href="{{arr.id}}/" class="">
@@ -64,13 +64,6 @@
                 </div>
             {% endfor %}
         </table>
-        <!-- <ul class="arr-list">
-            {%for arr in arrangements%}
-                <li>
-                    <a href="{% static arr.file_path %}">{{arr.title}}</a>
-                </li>
-            {% endfor %}
-        </ul> -->
     {%else%}
         <p>Sorry, no arrangements listed.</p>
     {% endif %}

@@ -14,29 +14,36 @@ var pdfDoc,
     scale = 2.0,
     canvas = document.getElementById('sheetcanvas'),
     canvas_card = document.getElementById('canvas-card'),
-    context = canvas.getContext('2d');
+    context = canvas.getContext('2d'),
+    prevBtn = document.getElementById('prevPage'),
+    nextBtn = document.getElementById('nextPage');
 
-var prevBtn = document.getElementById('prevPage');
 prevBtn.addEventListener('click', ()=> {
     if (pgNum <= 1) {
         return;
     }
     pgNum--;
-    console.log("canvas.height + width:" + canvas.height +", " + canvas.width)
-    renderPage()
+    renderPage();
 })
-var nextBtn = document.getElementById('nextPage');
 nextBtn.addEventListener('click', ()=> {
     if (pgNum >= MAX_PREVIEW_PAGES) {
         return;
     }
     pgNum++;
-    console.log("canvas.height + width:" + canvas.height +", " + canvas.width)
     renderPage();
 })
 
-async function renderPage() {
+function disableBtn(btn, bool) {
+    if (bool) {
+        btn.style.setProperty('visibility', 'hidden');
+        btn.style.setProperty('disabled', bool + '');
+    } else {    
+        btn.style.setProperty('visibility', 'visible');
+        btn.style.setProperty('disabled', bool + '');
+    }
+}
 
+async function renderPage() {
     try {
         canvas.width = CANV_WIDTH;
         page = await pdfDoc.getPage(pgNum);
@@ -64,14 +71,23 @@ async function renderPage() {
             transform:[ totalscale, 0, 0, totalscale , 0, 0]
         };
         await page.render(renderContext).promise;
-        console.log("canvas-card width: " + (30 + CANV_WIDTH) + 'px')
+        console.log("canvas-card width: " + (30 + CANV_WIDTH) + 'px');
         canvas_card.style.setProperty('max-width', (Math.trunc(CANV_WIDTH + 30)) + 'px'); //+30 so card border isn't cut off
-        console.log('rendered');
         page.cleanup();
     } 
     catch(err) {
         console.error(err);
     }
+    if (pgNum == 1) {
+        disableBtn(prevBtn, true);
+    } else if (pgNum == MAX_PREVIEW_PAGES) {
+        disableBtn(nextBtn, true);
+    } else {
+        disableBtn(prevBtn, false);
+        disableBtn(nextBtn, false);
+    }
+
+
 }
 
 async function loadPDF(pdf_bytes) {
@@ -85,10 +101,8 @@ async function loadPDF(pdf_bytes) {
     }
     if (pdfDoc.numPages <= MAX_PREVIEW_PAGES) {
         // disable and hide previous, next buttons
-        prevBtn.style.setProperty('disabled', 'true');
-        prevBtn.style.setProperty('visibility', 'hidden');
-        nextBtn.style.setProperty('disabled', 'true');
-        nextBtn.style.setProperty('visibility', 'hidden');
+        disableBtn(prevBtn, true);
+        disableBtn(nextBtn, true);
     } 
 }
 

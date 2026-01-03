@@ -25,7 +25,7 @@
                     <a class="nav-link" href="#">About Me</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link"  aria-current="page" href="/">A Cappella</a>
+                    <a class="nav-link"  aria-current="page" href="/sheetmusic">A Cappella</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Inquiries</a>
@@ -35,44 +35,56 @@
 
     {{sheet_bytes|json_script:"arr-data"}}
 
-    <h1>{{sheet.title}}</h1>
-    <audio controls style="width:100%">
-        <source src="{% static sheet.mp3_path %}" type="audio/mp3"/>
+    <!-- <h1>{{sheet.title}} - {{sheet.artist}}</h1> -->
+    <audio controls id="sheetmp3">
+        <source src="{% static sheet.mp3_path %}" type="audio/mp3" style="padding-bottom: 20px;">
         Your browser doesn't support mp3 audio
     </audio>
-    <button type="button" class="btn btn-outline-secondary" id="prevPage">
-        <!-- bootstrap icon, arrow left -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M9.224 1.553a.5.5 0 0 1 .223.67L6.56 8l2.888 5.776a.5.5 0 1 1-.894.448l-3-6a.5.5 0 0 1 0-.448l3-6a.5.5 0 0 1 .67-.223"/>
-        </svg>
-    </button>
-    <button type="button" class="btn btn-outline-secondary" id="nextPage">
-        <!-- bootstrap icon, arrow right -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-right" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671"/>
-        </svg>
-    </button>
     <div class="container ">
         <div class="row justify-content-center">
-            <div class="col-8" style="padding-left: 1.5vw;">
-                <div class="card border-3 justify-content-center" id="canvas-card" >
-                    <canvas id="sheetcanvas"></canvas>
-                </div>
+            <div class="col-md m-0 p-0" style="padding-left: 5vw">
+                <!-- #TODO: make btns overlay on canvas? -->
+                <ul class="d-flex justify-content-center align-items-center p-0 m-0 list-unstyled">
+                    <li class="p-1 m-0" >
+                        <button type="button" class="btn btn-outline-secondary" id="prevPage">
+                            <!-- bootstrap icon, arrow left -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M9.224 1.553a.5.5 0 0 1 .223.67L6.56 8l2.888 5.776a.5.5 0 1 1-.894.448l-3-6a.5.5 0 0 1 0-.448l3-6a.5.5 0 0 1 .67-.223"/>
+                            </svg>
+                        </button>
+                    </li>
+                    <li class="p-0 m-0">
+                        <div class="card border-3 justify-content-center" id="canvas-card" >
+                            <canvas id="sheetcanvas"></canvas>
+                        </div>
+                    </li>
+                    <li class="p-1 m-0">
+                        <button type="button" class="btn btn-outline-secondary" id="nextPage">
+                            <!-- bootstrap icon, arrow right -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671"/>
+                            </svg>
+                        </button>
+                    </li>
+                </ul>
             </div>
-            <div class="col-5 col-sm-3" id="info-col" style="padding-right: 5vw;">
-                <ul>
+            <div class="col-md pt-5 ps-1 m-0" style="padding-right: 5vw">
+                <h4 style="justify-self: center">{{sheet.title}} - {{sheet.artist}}</h4>
+                <ul class="sheet-info">
+                {% if sheet.synopsis %}
                     <li>
-                        <p>Artist: {{sheet.artist}}</p>
+                        <p>{{sheet.synopsis}}</p>
+                    </li>
+                {% endif %}
+                    <li>
+                        <p>Instrumentation: {{sheet.instr}}</p>
                     </li>
                     <li>
-                        {{sheet.instr}}
+                        <p>Price: {{price}}</p>
                     </li>
-                    {% if sheet.synopsis %}
-                        <li>
-                            {{sheet.synopsis}}
-                        </li>
-                    {% endif %}
-                    <a href="#" class="btn btn-primary" style="border-radius:20px">Buy this arrangement</a>
+                    <li>
+                        <a href="{% url 'index' %}buy/{{sheet.id}}" class="btn btn-primary" style="border-radius:20px">Buy this arrangement</a>
+                    </li>
                 </ul>
             </div>
         </div>

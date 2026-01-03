@@ -12,18 +12,23 @@ ul {
 
 #canvas-card {
     transition: 0.3s;
-    border: 2px solid black;
+    border: 1px solid black;
     margin: 0px;
-}
-
-#info-col {
-    padding-left: 10px;
-    margin-left: 0px;
 }
 
 #canvas-card:hover{
     box-shadow: 5px 4px rgba(0,0,0,0.5)
 
+}
+
+#sheetmp3 {
+    padding-left: 5vw;
+    padding-right: 5vw;
+    width: 100%;
+}
+
+.sheet-info li{
+    padding-bottom: 15px;
 }
 
 .small-canvas {
