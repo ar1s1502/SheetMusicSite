@@ -2,7 +2,7 @@ import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@latest/build/pdf.worker.min.mjs";
 //#TODO: add pdf full screen preview on canvas click?
 //probably add some sort of error handling if pdf_bytes are not found
-var pdf_bytes = JSON.parse(document.getElementById('arr-data').textContent);
+var pdf_bytes = JSON.parse(document.getElementById('arr-pdf').textContent);
 pdf_bytes = atob(pdf_bytes);
 
 const MAX_PREVIEW_PAGES = 3; 

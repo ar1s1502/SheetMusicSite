@@ -3,6 +3,7 @@
 {%load static%}
 <head>
     <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Aaron Teng's music website, Computer Science & Music nerd. A cappella arrangements, original classical compositions">
   
@@ -14,8 +15,20 @@
     <!-- <link rel="stylesheet" href="https://cdn.plyr.io/3.8.3/plyr.css" /> video/audio CSS plugin -->
 </head>
 <body>
+    <!-- pdfjs scripts -->
     <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
     <script src="{% static 'sheetmusic/js/sheet.js' %}" type="module"></script>
+    {{sheet_bytes|json_script:"arr-pdf"}}
+    <!-- stripe scripts -->
+    <script src="https://js.stripe.com/clover/stripe.js"></script>
+    <script src="{% static 'sheetmusic/js/checkout.js' %}" defer></script>
+    <script>
+        //"checkout" in app urls.py. relative url: /create_checkout_sesh
+        const checkoutview_appurl = "{% url 'checkout' %}";
+        const csrftoken = "{{ csrf_token }}";
+    </script>
+    {{sheet.id|json_script:"arr-id"}}
+
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">(Logo here)</a>
@@ -32,50 +45,81 @@
         </div>
     </nav>
 
-    {{sheet_bytes|json_script:"arr-data"}}
-
     <h1>Buy {{sheet.title}}</h1>
-    <audio controls style="width:100%">
-        <source src="{% static sheet.mp3_path %}" type="audio/mp3"/>
+    <!-- <audio controls id="sheetmp3">
+        <source src="{% static sheet.mp3_path %}" type="audio/mp3" style="padding-bottom: 20px;">
         Your browser doesn't support mp3 audio
-    </audio>
-    <button type="button" class="btn btn-outline-secondary" id="prevPage">
-        <!-- bootstrap icon, arrow left -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M9.224 1.553a.5.5 0 0 1 .223.67L6.56 8l2.888 5.776a.5.5 0 1 1-.894.448l-3-6a.5.5 0 0 1 0-.448l3-6a.5.5 0 0 1 .67-.223"/>
-        </svg>
-    </button>
-    <button type="button" class="btn btn-outline-secondary" id="nextPage">
-        <!-- bootstrap icon, arrow right -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-right" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671"/>
-        </svg>
-    </button>
+    </audio> -->
     <div class="container ">
         <div class="row justify-content-center">
-            <div class="col-md pb-4" style="padding-left: 5vw">
-                <div class="card border-3 justify-content-center" id="canvas-card" >
-                    <canvas id="sheetcanvas"></canvas>
-                </div>
-            </div>
-            <div class="col-md" id="info-col" style="padding-right: 5vw">
-                <ul>
-                    <li>
-                        <p>Artist: {{sheet.artist}}</p>
+            <div class="col-md m-0 p-0" style="padding-left: 5vw">
+                <!-- #TODO: make btns overlay on canvas? -->
+                <ul class="d-flex justify-content-center align-items-center p-0 m-0 list-unstyled">
+                    <li class="p-1 m-0" >
+                        <button type="button" class="btn btn-outline-secondary" id="prevPage">
+                            <!-- bootstrap icon, arrow left -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M9.224 1.553a.5.5 0 0 1 .223.67L6.56 8l2.888 5.776a.5.5 0 1 1-.894.448l-3-6a.5.5 0 0 1 0-.448l3-6a.5.5 0 0 1 .67-.223"/>
+                            </svg>
+                        </button>
                     </li>
-                    <li>
-                        {{sheet.instr}}
+                    <li class="p-0 m-0">
+                        <div class="card border-3 justify-content-center" id="canvas-card" >
+                            <canvas id="sheetcanvas"></canvas>
+                        </div>
                     </li>
-                    {% if sheet.synopsis %}
-                        <li>
-                            {{sheet.synopsis}}
-                        </li>
-                    {% endif %}
-                    <a href="#" class="btn btn-primary" style="border-radius:20px">Buy this arrangement</a>
+                    <li class="p-1 m-0">
+                        <button type="button" class="btn btn-outline-secondary" id="nextPage">
+                            <!-- bootstrap icon, arrow right -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671"/>
+                            </svg>
+                        </button>
+                    </li>
                 </ul>
+            </div>
+            <div class="col-md pt-5 ps-1 m-0" style="padding-right: 5vw">
+                <h4 style="justify-self: center">{{sheet.title}} - {{sheet.artist}}</h4>
+                <div class="card border-0 p-0 m-0">
+                    <div class="card-body">
+                        <h5 class="card-title">Included in Purchase:</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item border-0">
+                                Full Score PDF
+                            </li>
+                            <li class="list-group-item border-0">
+                                Piano-MIDI generated part tracks, for each vocal part
+                            </li>
+                        </ul>
+                        <p class="card-text">All files are downloaded through the browser after purchase</p>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-horizontal align-items-center justify-content-around">
+                            <li class="list-group-item border-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 50 50">
+                                    <path d="M 5 7 C 2.242188 7 0 9.242188 0 12 L 0 38 C 0 40.757813 2.242188 43 5 43 L 45 43 C 47.757813 43 50 40.757813 50 38 L 50 12 C 50 9.242188 47.757813 7 45 7 Z M 29.6875 19.40625 C 31.050781 19.40625 32.46875 19.96875 32.46875 19.96875 L 31.96875 22.40625 C 31.96875 22.40625 30.890625 21.6875 29.9375 21.6875 C 28.46875 21.6875 27.9375 22.167969 27.9375 22.8125 C 27.9375 24.074219 32.03125 24.296875 32.03125 27.125 C 32.03125 29.476563 29.113281 31.09375 27 31.09375 C 24.886719 31.09375 23.78125 30.46875 23.78125 30.46875 L 24.3125 28.09375 C 24.3125 28.09375 25.417969 28.75 27.125 28.75 C 28.828125 28.75 29.0625 28.023438 29.0625 27.71875 C 29.0625 25.914063 25 26.417969 25 22.90625 C 25 20.964844 26.585938 19.40625 29.6875 19.40625 Z M 16.46875 19.625 L 19.625 19.625 L 15.125 30.75 L 11.875 30.75 L 9.5 21.75 C 9.5 21.75 11.996094 23.023438 13.53125 26.46875 C 13.597656 26.886719 13.78125 27.5625 13.78125 27.5625 Z M 20.78125 19.625 L 23.78125 19.625 L 22 30.75 L 19.03125 30.75 Z M 36.8125 19.625 L 39.90625 19.625 L 42.1875 30.75 L 39.5 30.75 L 39.1875 29.15625 L 35.5 29.15625 L 34.90625 30.75 L 31.96875 30.75 Z M 6.25 19.65625 L 10.8125 19.65625 C 11.976563 19.65625 12.40625 20.75 12.40625 20.75 L 13.40625 25.8125 C 12.054688 21.453125 6.25 19.65625 6.25 19.65625 Z M 37.9375 22.84375 L 36.3125 27.03125 L 38.75 27.03125 Z"></path>
+                                </svg>
+                            </li>
+                            <li class="list-group-item border-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 50 50">
+                                    <path d="M 9.984375 15.001953 C 9.149375 15.041953 8.1182969 15.573313 7.5292969 16.320312 C 6.9892969 16.964312 6.5275313 18.010188 6.6445312 18.992188 C 7.5875313 19.074188 8.5301406 18.500438 9.1191406 17.773438 C 9.6991406 17.026437 10.082375 16.024953 9.984375 15.001953 z M 18 17 L 18 32 L 20.375 32 L 20.375 27 L 23.625 27 C 26.608 27 28.75 24.925 28.75 22 C 28.75 19.075 26.647125 17 23.703125 17 L 18 17 z M 20.375 19 L 23.125 19 C 25.172 19 26.375 20.105 26.375 22 C 26.375 23.895 25.182 25 23.125 25 L 20.375 25 L 20.375 19 z M 9.875 19.5 C 8.5 19.5 7.517 20.25 6.875 20.25 C 6.223 20.25 5.25 19.509766 4.125 19.509766 C 2.75 19.509766 1.4033594 20.372859 0.69335938 21.630859 C -0.76564063 24.145859 0.31460937 27.869016 1.7246094 29.916016 C 2.4156094 30.930016 3.25 32 4.375 32 C 5.406 31.961 5.755 31.375 7 31.375 C 8.254 31.375 8.625 32 9.75 32 C 10.875 32 11.556094 30.969078 12.246094 29.955078 C 13.034094 28.805078 13.356 27.684 13.375 27.625 C 13.356 27.606 11.197734 26.77725 11.177734 24.28125 C 11.158734 22.19525 12.879031 21.200578 12.957031 21.142578 C 11.984031 19.700578 10.375 19.5 10 19.5 L 9.875 19.5 z M 34.199219 21 C 31.710219 21 29.870734 22.395453 29.802734 24.314453 L 31.912109 24.314453 C 32.086109 23.402453 32.948859 22.804688 34.130859 22.804688 C 35.563859 22.804688 36.373047 23.460969 36.373047 24.667969 L 36.375 25.5 L 33.443359 25.654297 C 30.722359 25.815297 29.25 26.908594 29.25 28.808594 C 29.25 30.727594 30.770219 32.001953 32.949219 32.001953 C 34.421219 32.001953 35.78725 31.270328 36.40625 30.111328 L 36.455078 30.111328 L 36.455078 31.886719 L 38.623047 31.886719 L 38.623047 24.515625 C 38.624047 22.376625 36.882219 21 34.199219 21 z M 39.5 21 L 43.507812 31.949219 L 43.292969 32.615234 C 42.930969 33.744234 42.344828 34.177734 41.298828 34.177734 C 41.119828 34.177734 40.781 34.159625 40.625 34.140625 L 40.625 35.945312 C 40.783 35.980313 41.332906 36 41.503906 36 C 43.810906 36 44.896703 35.132047 45.845703 32.498047 L 50 21 L 47.595703 21 L 44.808594 29.884766 L 44.759766 29.884766 L 41.972656 21 L 39.5 21 z M 36.375 27 L 36.367188 27.867188 C 36.367188 29.254188 35.166125 30.242188 33.578125 30.242188 C 32.329125 30.242188 31.535156 29.653953 31.535156 28.751953 C 31.535156 27.820953 32.300672 27.279359 33.763672 27.193359 L 36.375 27 z"></path>
+                                </svg>
+                            </li>
+                            <li class="list-group-item border-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 24 24">
+                                    <path d="M8.994 12.242H4.862v1.502h2.002c-.165.345-.402.646-.691.89l.001.001-.001 0c-.457.382-1.044.611-1.686.611-1.113 0-2.065-.692-2.448-1.67-.117-.298-.181-.621-.181-.959 0-.545.166-1.05.449-1.47l.049-.065c.476-.664 1.251-1.094 2.13-1.094.702 0 1.341.274 1.81.725l1.254-1.401C6.748 8.569 5.67 8.111 4.487 8.111c-1.555 0-2.926.789-3.737 1.987-.486.72-.77 1.587-.77 2.52 0 .74.178 1.438.494 2.054.747 1.456 2.263 2.453 4.012 2.453 1.201 0 2.292-.469 3.1-1.235l-.001-.001c.867-.818 1.408-1.983 1.408-3.27V12.242zM21.045 15.353l-1.773-4.658h1.077l1.211 3.545 1.485-3.545h.935c0 0-2.9 6.842-2.924 6.899l-.935.024C20.138 17.579 21.045 15.353 21.045 15.353zM18.012 13.552c0 .577-.508.988-1.18.988-.528 0-.865-.245-.865-.62 0-.387.324-.612.943-.648l1.105-.081L18.012 13.552zM17.095 10.695c-1.053 0-1.832.581-1.861 1.379h.893c.074-.38.438-.628.939-.628.606 0 .949.272.949.775l0 .347-1.24.064c-1.151.067-1.774.522-1.774 1.312 0 .798.643 1.328 1.565 1.328.623 0 1.201-.304 1.463-.786h.02l.003.786h.915v-3.114C18.967 11.268 18.229 10.695 17.095 10.695zM12.56 12.22h-1.221V9.78h1.221c.871 0 1.43.411 1.43 1.221S13.435 12.22 12.56 12.22zM12.852 8.865h-2.428v6.407h.915v-2.136h1.479C14.088 13.136 15 12.25 15 11S14.105 8.865 12.852 8.865z"></path>
+                                </svg>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="checkout">
+        <!-- Payment form; filled in by stripe -->
+    </div>
+    
     
 </body>

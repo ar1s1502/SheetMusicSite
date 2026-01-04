@@ -32,9 +32,24 @@
                 </li>
         </div>
     </nav>
+
+    {% if checkoutsession_id %}
+        <script>
+            //"session" in app urls.py. relative url: get_sesh_status?session_id={}
+            const sessionview_appurl = "{% url 'session' %}{% querystring session_id=checkoutsession_id %}"
+        </script>
+        <script src="{% static 'sheetmusic/js/checkout_confirm.js' %}"></script>
+        <div style="background-color: gray"> 
+            <h1>checkout woohoo</h1>
+            <p><span id="client_email"></span></p>
+            <p><span id="session_status"></span></p>
+        </div>
+    {% endif %}
+
     <h1>Arrangements</h1>
 
-    {{ pdf_dict|json_script:"arr-data" }}
+    {{ pdf_dict|json_script:"arr-pdf" }}
+
     {%if arrangements %}
         <table class="table no-header table-hover">
             <tr>

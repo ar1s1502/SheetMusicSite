@@ -1,7 +1,7 @@
 import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@latest/build/pdf.worker.min.mjs";
 
-const pdf_dict = JSON.parse(document.getElementById("arr-data").textContent);
+const pdf_dict = JSON.parse(document.getElementById("arr-pdf").textContent);
 
 var pgnum = 1,
     scale = 0.75,
@@ -49,6 +49,8 @@ async function loadPDF(id, pdf_bytes) {
 for (const [id, pdf_bytes] of Object.entries(pdf_dict)) {
     loadPDF(id, atob(pdf_bytes))
 }
+
+
 
 
 
