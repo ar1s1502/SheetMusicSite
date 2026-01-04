@@ -1,14 +1,17 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
+from django.conf import settings
 from .models import Sheet
 import os
 import base64
 import json
 import stripe
 
+
 #stripe test api key; secret
-stripe.api_key = 'remov'
+
+stripe.api_key = settings.STRIPE_SK
 
 def _serializePDF(arr: Sheet):
     with open("sheetmusic/static/" + arr.file_path(), "rb") as f:
