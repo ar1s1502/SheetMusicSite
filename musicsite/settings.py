@@ -21,6 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-gla-=ax&wla6b&cx4uu6a0uuti*y3-!*y--66y4=jy*nc-=_bc'
+#stripe test sk
+STRIPE_SK = 'remov'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
