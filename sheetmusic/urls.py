@@ -9,5 +9,7 @@ urlpatterns=[
     
     #Stripe
     path("create_checkout_sesh", views.checkout, name="checkout"),
-    path("get_sesh_status", views.sesh_status, name="session")
+    path("get_sesh_status", views.sesh_status, name="session"),
+    path("payment_hook", views.payment_webhook, name="payment_webhook"),
+    # path('download', views.download, name="download")
 ]

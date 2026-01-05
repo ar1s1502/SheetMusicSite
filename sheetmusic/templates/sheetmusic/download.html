@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+{%load static%}
+
+<script type="text/javascript">
+    const download_content = "{{ sheet_zip }}";
+
+    link = document.createElement('a');
+    link.href = download_content;
+    link.download = '{{sheet_title}}';
+    link.click()
+    window.location.href = "{% url 'index' %}"
+</script>

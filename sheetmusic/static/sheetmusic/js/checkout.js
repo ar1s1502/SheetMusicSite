@@ -7,6 +7,9 @@ console.log("id of sheet: " + sheet_id)
 const POSTdata = {
     'sheet_id': sheet_id
 }
+
+var sheet_price = JSON.parse(document.getElementById('arr-price').textContent);
+
 // console.log(JSON.stringify(POSTdata));
 // console.log(csrftoken);
 // console.log('js csrftoken: ' + getCookie('csrftoken'));
@@ -33,6 +36,9 @@ initialize();
 //skeleton code from https://docs.stripe.com/checkout/embedded/quickstart
 //Create a Checkout Session
 async function initialize() {
+  if (sheet_price <= 0) {
+    return;
+  }
   const fetchClientSecret = async () => {
     //query app server (views.checkout) to create Stripe payment sesh, then return the sesh secret
     const response = await fetch(checkoutview_appurl, {
