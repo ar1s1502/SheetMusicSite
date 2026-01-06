@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Aaron Teng's music website, Computer Science & Music nerd. A cappella arrang    ements, original classical compositions">
+    <meta name="description" content="Aaron Teng's music website, Computer Science & Music nerd. A cappella arrangements, original classical compositions">
   
     <title>Aaron Teng | Music Website</title>
   
@@ -12,11 +12,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"  integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <!-- <link rel="stylesheet" href="https://cdn.plyr.io/3.8.3/plyr.css" /> video/audio CSS plugin -->
-    
 </head>
 <body>
     <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
-    <script src="{% static 'sheetmusic/js/sheetmusic.js' %}" type="module"></script>
+    <script src="{% static 'sheetmusic/js/index.js' %}" type="module"></script>
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">(Logo here)</a>
@@ -37,12 +36,16 @@
         <script>
             //"session" in app urls.py. relative url: get_sesh_status?session_id={}
             const sessionview_appurl = "{% url 'session' %}{% querystring session_id=checkoutsession_id %}"
+            const home_appurl = "{% url 'index' %}"
         </script>
         <script src="{% static 'sheetmusic/js/checkout_confirm.js' %}"></script>
-        <div style="background-color: gray"> 
-            <h1>checkout woohoo</h1>
+        <div style="background-color: lightgray" style="display:none"> 
             <p><span id="client_email"></span></p>
             <p><span id="session_status"></span></p>
+            <div class="list-group list-group-horizontal justify-content-around" id="checkout_confirm_btns" style="display:none">
+                <button class="btn btn-primary" id="downloadbtn">Download</button>
+                <button class="btn btn-primary" id="emailbtn">Email</button>
+            </div>
         </div>
     {% endif %}
 

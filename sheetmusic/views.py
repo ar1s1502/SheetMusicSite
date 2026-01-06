@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Sheet
+from .models import Sheet, Order
 import os
 import base64
 import json
@@ -31,18 +31,25 @@ def _fulfillOrder(session_id):
 
     session = stripe.checkout.Session.retrieve(session_id, expand=['line_items', 'customer'])
     #1. create new order object, save it. Fulfilled = false 
-
+    product = session.line_items.data[0]
+    customer = session.customer_details
+    print('product, customer from _fulfill')
+    print(customer)
+    print(product.description)
+    print('sheet_id: '+product.metadata['sheet_id'])
+    sheet = Sheet.objects.get(id = product.metadata['sheet_id'])
+    order = sheet.order_set.create(
+        session_id=session.id,
+        customer_name=customer['name'],
+        email = customer['email'],
+    )
     if session.payment_status != 'unpaid':
-        
-        # TODO: Perform fulfillment of the line items. Order.fulfilled = True + order.save
-        product = session.line_items.data[0]
-        customer = session.customer
-        print(customer)
-        print(product)
-        print(product.description)
-        print('sheet_id: '+product.metadata['sheet_id'])
-        sheet = Sheet.objects.get(id = product.metadata['sheet_id'])
-
+        # TODO: Perform fulfillment of the line items.
+        order.paid = True
+        order.save()
+        print(f"Order:\\n{order}")
+        print(f"order.fulfilled: {order.fulfilled}")
+        print(f'order.paid {order.paid}') 
         #TODO email as thank you + customer services
         # print("email: " + session.customer_email) #session.customer_email is NoneType for some reason
         #send and download zip
@@ -63,7 +70,7 @@ def index(request):
         pdf_dict[arr.id] = encoded_bytes
 
     #2. if session_id exists, get its order. 
-    #3. check if order's been fulfilled and if it's been successfullyl paid. 
+    #3. check if order's been fulfilled and if it's been successfully paid. 
     #4. if not fulfilled && successfully paid, render download button with href=pdf_bytes. 
         # on client side, use checkout_confirm.js to click download automatically. 
     #5. change status to fulfilled upon rendering the download button
@@ -71,7 +78,7 @@ def index(request):
     context = {
         "arrangements": arrangements,
         "pdf_dict": pdf_dict,
-        #Stripe shall redirect to index to display confirmation after a checkout is completed
+        #Stripe shall redirect to index to display confirmation + download product after a checkout is completed
         "checkoutsession_id": request.GET.get('session_id', None) #default to None if no 'session_id' param
     }
     return render(request, "sheetmusic/index.html", context)
@@ -162,16 +169,29 @@ def sesh_status(request)->JsonResponse:
     print("session_id: " + request.GET['session_id'])
     session = stripe.checkout.Session.retrieve(request.GET['session_id'], expand=['line_items'])
     product = session.line_items.data[0]
-    customer = session.customer_details
-    print("product, customer from session complete response:")
-    print(customer) #customer.name, customer.email
-    print(product)
     #fetch order instance corresponding to session_id and email
-    # if paid, not fulfilled, enable download in session_details
-
+    #if paid + not fulfilled, enable download + checkout confirmation
+    try:
+        order = Order.objects.get(session_id = session.id, sheet__id=product['metadata']['sheet_id'])
+    except Order.DoesNotExist:
+        order = None
+    print(order)
+    display_download = (order) and (not order.fulfilled) and (order.paid)
+    print(f"display_download: {display_download}")
+    if display_download:
+        sheet = Sheet.objects.get(id = product['metadata']['sheet_id'])
+        filetype = 'pdf'
+        order_pkg = _serializeFile(sheet, filetype)
+        order.fulfilled = True
+        order.save()
+    
     session_details = {
         "status": session.status,
         "customer_email": session.customer_details.email,
+        "display_download": display_download,
+        "download_content": order_pkg if display_download else None,
+        "filetype": filetype if display_download else None,
+        "download_title": sheet.title if display_download else None
     }
     return JsonResponse(session_details)
 
@@ -196,8 +216,7 @@ def payment_webhook(request):
         return HttpResponse(status = 400)
 
     if (event['type'] == 'checkout.session.completed' or 
-        event['type'] == 'checkout.session.async_payment_succeeded'
-    ):
+    event['type'] == 'checkout.session.async_payment_succeeded'):
         _fulfillOrder(session_id = event['data']['object']['id'])
 
     return HttpResponse(status = 200) 
