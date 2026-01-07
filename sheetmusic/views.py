@@ -16,8 +16,8 @@ import stripe
 stripe.api_key = settings.STRIPE_SK
 endpt_sec = settings.WEBHOOK_SEC 
 
-def _serializeFile(arr: Sheet, file: str):
-    with open("sheetmusic/static/" + arr.file_path(filetype = file), "rb") as f:
+def _serializeFile(arr: Sheet, file_type: str):
+    with open("sheetmusic/static/" + arr.file_path(filetype = file_type), "rb") as f:
         pdf_bytes = f.read()
         return base64.b64encode(pdf_bytes).decode('utf-8')
 
@@ -29,15 +29,15 @@ def _sendEmail(to_addr: str, subj: str,
     email['Subject'] = subj
     email['From'] = from_addr
     email['To'] = to_addr
-
     if msg_txt:
         email.set_content(msg_txt)
-    if file:
+    if file: #file too large :( must send over google drive. Send .mscz file instead?
         email.add_attachment(file, maintype='application', subtype='octet-stream', filename=file_name)
 
     #authenticate to SMTP server
-    with smtplib.SMTP('localhost') as s:
-        s.send_message(email)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as serv:
+        serv.login(from_addr, settings.GMAIL_APP_PW)
+        serv.send_message(email)
 
 def _fulfillOrder(session_id):
     session = stripe.checkout.Session.retrieve(session_id, expand=['line_items'])
@@ -60,13 +60,23 @@ def _fulfillOrder(session_id):
         return
     if session.payment_status != 'unpaid':
         #Perform fulfillment of the line items.
-        # Record/save fulfillment status for this Checkout Session
+        #Record/save fulfillment status for this Checkout Session
         order.paid = True
         order.save()
         print(f"Order: {order}")
-
-        #TODO email as thank you + customer services. Use <customer.email>
-
+        #email as thank you + customer services. 
+        with open("sheetmusic/static/" + sheet.file_path(filetype = "zip"), "rb") as f:
+            zip_bytes = f.read()
+        thankyoumsg = """Hello!
+        Attached below is a zip file with the sheet music as pdf, and mp3's of all part tracks.
+        If there is any mistake in the sheet music, let me know and I will send you a fixed copy.
+        
+        -Aaron"""
+        _sendEmail(to_addr = customer.email,
+                   subj = "Your Sheet Music Order",
+                   msg_txt = thankyoumsg,
+                   file = None,
+                   file_name = sheet.title.replace(" ","") + ".zip")
 
     return
 
@@ -200,7 +210,7 @@ def sesh_status(request)->JsonResponse:
         "display_download": display_download,
         "download_content": order_pkg if display_download else None,
         "filetype": filetype if display_download else None,
-        "download_title": sheet.title if display_download else None
+        "download_title": sheet.title.replace(" ", "") if display_download else None
     }
     return JsonResponse(session_details)
 

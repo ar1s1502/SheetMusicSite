@@ -27,6 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 STRIPE_SK = config('STRIPE_SK')
 
 WEBHOOK_SEC = config('WEBHOOK_SECRET')
+GMAIL_APP_PW = config('GMAIL_APP_PW')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast = bool)
