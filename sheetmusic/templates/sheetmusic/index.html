@@ -33,20 +33,26 @@
     </nav>
 
     {% if checkoutsession_id %}
-        <script>
-            //"session" in app urls.py. relative url: get_sesh_status?session_id={}
-            const sessionview_appurl = "{% url 'session' %}{% querystring session_id=checkoutsession_id %}"
-            const home_appurl = "{% url 'index' %}"
-        </script>
-        <script src="{% static 'sheetmusic/js/checkout_confirm.js' %}"></script>
-        <div style="background-color: lightgray" style="display:none"> 
-            <p><span id="client_email"></span></p>
-            <p><span id="session_status"></span></p>
-            <div class="list-group list-group-horizontal justify-content-around" id="checkout_confirm_btns" style="display:none">
-                <button class="btn btn-primary" id="downloadbtn">Download</button>
-                <button class="btn btn-primary" id="emailbtn">Email</button>
+        <div class="alert" id="checkout_banner" style="display:none"> 
+            <h4 class="alert-heading" id="banner_header"></h4>
+            <p id="banner_text"></p>
+            <hr class="p-1">
+            <div class="list-group list-group-horizontal justify-content-between mt-3" style="width: 100%">
+                <div class="list-group list-group-horizontal justify-content-start m-0 ps-3" id="checkout_confirm_btns" style="display: none">
+                    <button class="btn btn-primary" id="downloadbtn">Download</button>
+                    <button class="btn btn-primary" id="emailbtn">Email</button>
+                </div>
+                <div class="list-group list-group-horizontal justify-content-center m-0 pe-3">
+                    <button class="btn btn-secondary" id="closebtn">Dismiss</button>
+                </div>
             </div>
         </div>
+        <script>
+            const home_appurl = "{% url 'index' %}"
+            //"session" in app urls.py. relative url: get_sesh_status?session_id={}. (for stripe)
+            const sessionview_appurl = "{% url 'session' %}{% querystring session_id=checkoutsession_id %}"
+        </script>
+        <script src="{% static 'sheetmusic/js/checkout_confirm.js' %}"></script>
     {% endif %}
 
     <h1>Arrangements</h1>

@@ -35,8 +35,8 @@ class Order(models.Model):
     paid = models.BooleanField(default = False)
 
     def __str__(self):
-        fulfilled = " fulfilled;" if self.fulfilled else " unfulfilled;"
-        paid = " paid" if self.paid else " unpaid;"
-        return f"{self.customer_name} - {self.sheet.title};" + fulfilled + paid
+        fulfilled = "fulfilled" if self.fulfilled else "unfulfilled"
+        paid = "paid" if self.paid else "unpaid"
+        return f"{self.customer_name} - {self.sheet.title}; {fulfilled}; {paid}"
     
 

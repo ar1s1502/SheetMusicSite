@@ -1,18 +1,18 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse, FileResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-
 from .models import Sheet, Order
+
 import os
 import base64
+import smtplib #for email
+from email.message import EmailMessage
 import json
 import stripe
 
-
-#stripe test api key; secret
-
+#TODO: replace stripe test api key
 stripe.api_key = settings.STRIPE_SK
 endpt_sec = settings.WEBHOOK_SEC 
 
@@ -20,41 +20,53 @@ def _serializeFile(arr: Sheet, file: str):
     with open("sheetmusic/static/" + arr.file_path(filetype = file), "rb") as f:
         pdf_bytes = f.read()
         return base64.b64encode(pdf_bytes).decode('utf-8')
+
+def _sendEmail(to_addr: str, subj: str,
+               msg_txt: str | None, file: bytes | None, file_name: str | None):
     
+    from_addr = "aaronteng2779@gmail.com"
+    email = EmailMessage()
+    email['Subject'] = subj
+    email['From'] = from_addr
+    email['To'] = to_addr
+
+    if msg_txt:
+        email.set_content(msg_txt)
+    if file:
+        email.add_attachment(file, maintype='application', subtype='octet-stream', filename=file_name)
+
+    #authenticate to SMTP server
+    with smtplib.SMTP('localhost') as s:
+        s.send_message(email)
+
 def _fulfillOrder(session_id):
-
-    # TODO: Make this function safe to run multiple times,
-    # even concurrently, with the same session ID
-
-    # TODO: Make sure fulfillment hasn't already been
-    # performed for this Checkout Session
-
-    session = stripe.checkout.Session.retrieve(session_id, expand=['line_items', 'customer'])
-    #1. create new order object, save it. Fulfilled = false 
+    session = stripe.checkout.Session.retrieve(session_id, expand=['line_items'])
     product = session.line_items.data[0]
     customer = session.customer_details
-    print('product, customer from _fulfill')
+    print('product, customer from _fulfill:')
     print(customer)
-    print(product.description)
-    print('sheet_id: '+product.metadata['sheet_id'])
-    sheet = Sheet.objects.get(id = product.metadata['sheet_id'])
-    order = sheet.order_set.create(
-        session_id=session.id,
-        customer_name=customer['name'],
-        email = customer['email'],
-    )
+    print(f"{product.description}'s sheet_id: {product.metadata['sheet_id']}")
+    # Make sure fulfillment hasn't already been performed for this Session
+    try:
+        order = Order.objects.get(session_id = session.id)
+    except Order.DoesNotExist:
+        sheet = Sheet.objects.get(id = product.metadata['sheet_id'])
+        order = sheet.order_set.create(
+            session_id=session.id,
+            customer_name=customer['name'],
+            email = customer['email'],
+        )
+    if (order.fulfilled): 
+        return
     if session.payment_status != 'unpaid':
-        # TODO: Perform fulfillment of the line items.
+        #Perform fulfillment of the line items.
+        # Record/save fulfillment status for this Checkout Session
         order.paid = True
         order.save()
-        print(f"Order:\\n{order}")
-        print(f"order.fulfilled: {order.fulfilled}")
-        print(f'order.paid {order.paid}') 
-        #TODO email as thank you + customer services
-        # print("email: " + session.customer_email) #session.customer_email is NoneType for some reason
-        #send and download zip
+        print(f"Order: {order}")
 
-        # TODO: Record/save fulfillment status for this Checkout Session
+        #TODO email as thank you + customer services. Use <customer.email>
+
 
     return
 
@@ -65,15 +77,8 @@ def index(request):
         current_directory = os.getcwd()
         print("current directory: ", current_directory)
         #since unix file:// paths are not allowed to be accessed by browser, must send the pdf as bytes
-        #must encode pdf as ascii byte string to make it json serializable
-        encoded_bytes = _serializeFile(arr, "pdf")    
-        pdf_dict[arr.id] = encoded_bytes
-
-    #2. if session_id exists, get its order. 
-    #3. check if order's been fulfilled and if it's been successfully paid. 
-    #4. if not fulfilled && successfully paid, render download button with href=pdf_bytes. 
-        # on client side, use checkout_confirm.js to click download automatically. 
-    #5. change status to fulfilled upon rendering the download button
+        #must encode pdf as ascii byte string to make it json serializable 
+        pdf_dict[arr.id] = _serializeFile(arr, "pdf")
 
     context = {
         "arrangements": arrangements,
@@ -169,8 +174,12 @@ def sesh_status(request)->JsonResponse:
     print("session_id: " + request.GET['session_id'])
     session = stripe.checkout.Session.retrieve(request.GET['session_id'], expand=['line_items'])
     product = session.line_items.data[0]
-    #fetch order instance corresponding to session_id and email
-    #if paid + not fulfilled, enable download + checkout confirmation
+    #2. if session_id exists, get its order. 
+    #3. check if order's been fulfilled and if it's been successfully paid. 
+    #4. if not fulfilled && successfully paid, render download button with href=pdf_bytes. 
+        # on client side, use checkout_confirm.js to click download automatically. 
+    #5. change status to fulfilled upon rendering the download button
+
     try:
         order = Order.objects.get(session_id = session.id, sheet__id=product['metadata']['sheet_id'])
     except Order.DoesNotExist:
@@ -180,7 +189,7 @@ def sesh_status(request)->JsonResponse:
     print(f"display_download: {display_download}")
     if display_download:
         sheet = Sheet.objects.get(id = product['metadata']['sheet_id'])
-        filetype = 'pdf'
+        filetype = 'zip'
         order_pkg = _serializeFile(sheet, filetype)
         order.fulfilled = True
         order.save()
