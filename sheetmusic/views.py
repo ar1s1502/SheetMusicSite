@@ -65,21 +65,25 @@ def _fulfillOrder(session_id):
         order.save()
         print(f"Order: {order}")
         #email as thank you + customer services. 
-        with open("sheetmusic/static/" + sheet.file_path(filetype = "zip"), "rb") as f:
-            zip_bytes = f.read()
+        with open(f"sheetmusic/static/{sheet.file_path(filetype="mscz")}", "rb") as f:
+            bytes = f.read()
         thankyoumsg = """Hello!
-        Attached below is a zip file with the sheet music as pdf, and mp3's of all part tracks.
-        If there is any mistake in the sheet music, let me know and I will send you a fixed copy.
-        
-        -Aaron"""
+        Attached below is a .mscz file of the Musescore4 Project that created the sheet music.
+        (The .zip file is sometimes too large to be linked as an attachment).         Opening the .mscz file with Musescore will give you access to the full score.
+        If there is any mistake in the sheet music, let me know and I will send you a fixed copy, or you can edit it yourself
+
+    - Aaron"""
         _sendEmail(to_addr = customer.email,
                    subj = "Your Sheet Music Order",
                    msg_txt = thankyoumsg,
-                   file = None,
-                   file_name = sheet.title.replace(" ","") + ".zip")
+                   file = bytes,
+                   file_name = sheet.title.replace(" ","") + ".mscz")
 
     return
 
+"""
+    Views
+"""
 def index(request):
     arrangements = Sheet.objects.all()
     pdf_dict = {}
