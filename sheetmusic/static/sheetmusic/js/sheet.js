@@ -5,7 +5,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@latest/bu
 var pdf_bytes = JSON.parse(document.getElementById('arr-pdf').textContent);
 pdf_bytes = atob(pdf_bytes);
 
-const MAX_PREVIEW_PAGES = 3; 
+var sheet_price = JSON.parse(document.getElementById('arr-price').textContent);
+console.log('sheet_price: ' + sheet_price);
+
+var MAX_PREVIEW_PAGES = 3; 
 const CANV_WIDTH = Math.max(window.innerWidth * 0.55, 500); //canvas should be at least 500 px wide
 
 var pdfDoc,
@@ -99,10 +102,8 @@ async function loadPDF(pdf_bytes) {
     catch(err) {
         console.error(err);
     }
-    if (pdfDoc.numPages <= MAX_PREVIEW_PAGES) {
-        // disable and hide previous, next buttons
-        disableBtn(prevBtn, true);
-        disableBtn(nextBtn, true);
+    if (sheet_price <= 0) {
+        MAX_PREVIEW_PAGES = pdfDoc.numPages
     } 
 }
 

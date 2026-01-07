@@ -34,8 +34,8 @@
     </nav>
 
     {{sheet_bytes|json_script:"arr-pdf"}}
+    {{sheet.price|json_script:"arr-price"}}
 
-    <!-- <h1>{{sheet.title}} - {{sheet.artist}}</h1> -->
     <audio controls id="sheetmp3">
         <source src="{% static sheet.mp3_path %}" type="audio/mp3" style="padding-bottom: 20px;">
         Your browser doesn't support mp3 audio

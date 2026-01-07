@@ -31,7 +31,7 @@ def _sendEmail(to_addr: str, subj: str,
     email['To'] = to_addr
     if msg_txt:
         email.set_content(msg_txt)
-    if file: #file too large :( must send over google drive. Send .mscz file instead?
+    if file: 
         email.add_attachment(file, maintype='application', subtype='octet-stream', filename=file_name)
 
     #authenticate to SMTP server
@@ -62,14 +62,16 @@ def _fulfillOrder(session_id):
         #Perform fulfillment of the line items.
         #Record/save fulfillment status for this Checkout Session
         order.paid = True
+        order.fulfilled = True
         order.save()
-        print(f"Order: {order}")
+        print(f"Order from _fulfillOrder: {order}")
         #email as thank you + customer services. 
         with open(f"sheetmusic/static/{sheet.file_path(filetype="mscz")}", "rb") as f:
             bytes = f.read()
         thankyoumsg = """Hello!
-        Attached below is a .mscz file of the Musescore4 Project that created the sheet music.
-        (The .zip file is sometimes too large to be linked as an attachment).         Opening the .mscz file with Musescore will give you access to the full score.
+        Attached below is a .mscz file of the Musescore4 Project that created the sheet music. 
+        (The .zip file is sometimes too large to be linked as an attachment).         
+        Opening the .mscz file with Musescore will give you access to the full score.
         If there is any mistake in the sheet music, let me know and I will send you a fixed copy, or you can edit it yourself
 
     - Aaron"""
@@ -124,7 +126,6 @@ def buy(request, sheet_id: int):
         sheet_price = "Free!"
     else:
         sheet_price = f"${(sheet_music.price/100):.2f}"
-
     context = {
         "sheet": sheet_music,
         "sheet_bytes": sheet_bytes,
@@ -170,6 +171,17 @@ def checkout(request)->JsonResponse:
                     }
                 }],
             mode='payment',
+            name_collection={
+                'individual': {
+                    'optional': False,
+                    'enabled': True,
+                }
+            },
+            custom_text={
+                'submit': {
+                    'message': "After completing the checkout form, check your email for a receipt from Stripe.",
+                },
+            },
             #redirect to home page + display confirmation there.
             return_url= f"{abs_return_path}?session_id={{CHECKOUT_SESSION_ID}}",
         )
@@ -188,37 +200,53 @@ def sesh_status(request)->JsonResponse:
     print("session_id: " + request.GET['session_id'])
     session = stripe.checkout.Session.retrieve(request.GET['session_id'], expand=['line_items'])
     product = session.line_items.data[0]
-    #2. if session_id exists, get its order. 
-    #3. check if order's been fulfilled and if it's been successfully paid. 
-    #4. if not fulfilled && successfully paid, render download button with href=pdf_bytes. 
-        # on client side, use checkout_confirm.js to click download automatically. 
-    #5. change status to fulfilled upon rendering the download button
+    customer = session.customer_details
 
-    try:
-        order = Order.objects.get(session_id = session.id, sheet__id=product['metadata']['sheet_id'])
-    except Order.DoesNotExist:
-        order = None
-    print(order)
-    display_download = (order) and (not order.fulfilled) and (order.paid)
-    print(f"display_download: {display_download}")
-    if display_download:
-        sheet = Sheet.objects.get(id = product['metadata']['sheet_id'])
-        filetype = 'zip'
-        order_pkg = _serializeFile(sheet, filetype)
-        order.fulfilled = True
-        order.save()
-    
+    if session.status == 'complete':
+        try:
+            order = Order.objects.get(session_id = session.id, sheet__id = product['metadata']['sheet_id'])
+        except Order.DoesNotExist:
+            sheet = Sheet.objects.get(id = product['metadata']['sheet_id'])
+            order = sheet.order_set.create(
+                session_id=session.id,
+                customer_name=customer['name'],
+                email = customer['email'],
+                #for free orders, return_url ('index') is rendered before webhook handler, hence payment_status would be 'paid'
+                paid = True if session.payment_status != 'unpaid' else False 
+            )
+    print(f"order: {order}")
+    display_download = order and (order.paid)
+    print(f'display_download: {display_download}')
+
+    # try:customer
+    #     order = Order.objects.get(session_id = session.id, sheet__id=product['metadata']['sheet_id'])
+    # except Order.DoesNotExist:
+    #     order = None
+    # print(order)
+    # display_download = (order) and (not order.fulfilled) and (order.paid)
+    # print(f"display_download: {display_download}")
+    # if display_download:
+    #     sheet = Sheet.objects.get(id = product['metadata']['sheet_id'])
+    #     filetype = 'zip'
+    #     order_pkg = _serializeFile(sheet, filetype)
+    #     order.fulfilled = True
+    #     order.save()
+
     session_details = {
         "status": session.status,
-        "customer_email": session.customer_details.email,
+        "customer_email": customer.email,
         "display_download": display_download,
-        "download_content": order_pkg if display_download else None,
-        "filetype": filetype if display_download else None,
-        "download_title": sheet.title.replace(" ", "") if display_download else None
+        "download_content": _serializeFile(order.sheet, 'zip') if display_download else None,
+        "filetype": 'zip' if display_download else None,
+        "download_title": order.sheet.title.replace(" ","") if display_download else None
     }
+    
     return JsonResponse(session_details)
 
-#Webhook for payment confirmation
+#Webhook waiting payment confirmation from stripe
+#For some reason, this triggers after get_sesh_status if product is free, and before get_sesh_status if product isn't. 
+#Hence the weird order fulfillment logic where an order can be created both in get_sesh_status and in _fulfillOrder
+#Also because the webhook is returning a response to stripe, you can not route to app urls from this function (and conseq. _fulfillOrder)
 @csrf_exempt #TODO remove after deployment
 def payment_webhook(request):
     try: 

@@ -15,10 +15,7 @@
     <!-- <link rel="stylesheet" href="https://cdn.plyr.io/3.8.3/plyr.css" /> video/audio CSS plugin -->
 </head>
 <body>
-    <!-- pdfjs scripts -->
-    <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
-    <script src="{% static 'sheetmusic/js/sheet.js' %}" type="module"></script>
-    {{sheet_bytes|json_script:"arr-pdf"}}
+    {{sheet.price|json_script:"arr-price"}}
     <!-- stripe scripts -->
     <script src="https://js.stripe.com/clover/stripe.js"></script>
     <script src="{% static 'sheetmusic/js/checkout.js' %}" defer></script>
@@ -27,8 +24,8 @@
         const checkoutview_appurl = "{% url 'checkout' %}";
         const csrftoken = "{{ csrf_token }}";
     </script>
+    {{sheet_bytes|json_script:"arr-pdf"}}
     {{sheet.id|json_script:"arr-id"}}
-    {{sheet.price|json_script:"arr-price"}}
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">(Logo here)</a>
@@ -92,7 +89,9 @@
                             </li>
                         </ul>
                         <p class="card-text">All files are downloaded through the browser after purchase</p>
-                        <p class="card-text pt-0">Payments handled through <a href="https://stripe.com/">Stripe</a></p>
+                        <p class="card-text pt-0">Payments handled through <a href="https://stripe.com/">Stripe</a>
+                        After completing the checkout form, check your email for a receipt from Stripe as well as an email from me 
+                        containing the Musescore (.mscz) file</p>
                     </div>
                 {% if sheet.price > 0 %}
                     <div class="card-body">
@@ -117,20 +116,18 @@
                             </li>
                         </ul>
                     </div>
-                {% else %}
-                    <button type="button" class="btn btn-primary"> 
-                        Download {{sheet.title}}
-                    </button>
-                {%endif%}
+                {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    {% if sheet.price > 0 %}
-        <div id="checkout" class="pt-4">
-            <!-- Payment form; filled in by stripe -->
-        </div>
-    {% endif %}
     
+    <div id="checkout" class="pt-4">
+        <!-- Payment form; filled in by stripe -->
+    </div>
+    
+    <!-- pdfjs scripts -->
+    <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
+    <script src="{% static 'sheetmusic/js/sheet.js' %}" type="module"></script>
     
 </body>
