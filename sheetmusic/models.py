@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class Sheet(models.Model):
     # A sheet has many orders
     title = models.CharField(max_length = 100)
@@ -23,7 +22,6 @@ class Sheet(models.Model):
         title = (self.title).replace(" ","")
         return f"sheetmusic/{title}/{self.vrsn}_{title}.mp3"
 
-
 class Order(models.Model):
     #belongs to a Sheet.
     sheet = models.ForeignKey(Sheet, on_delete=models.PROTECT)
@@ -39,4 +37,34 @@ class Order(models.Model):
         paid = "paid" if self.paid else "unpaid"
         return f"{self.customer_name} - {self.sheet.title}; {fulfilled}; {paid}"
     
+class Inquiry(models.Model): #abstract base class, no table in db
+    name = models.CharField(max_length = 60)
+    email = models.EmailField(max_length=100)
+    responded = models.BooleanField(default = False)  
+
+    class Meta: 
+        abstract = True
+
+    def __str__(self):
+        return f"{self.name} - {self.subject}; responded: {self.responded}"
+    
+    @classmethod #to make form construction easier
+    def field_set(cls)->list[str]:
+        return [field.name for field in cls._meta.fields 
+                if (field.name != 'id' and 
+                field.name != 'responded')]
+
+class Request(Inquiry):
+    title = models.CharField(max_length = 100)
+    use_context = models.TextField()
+    additional_info = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{super().__str__}; {self.title}"
+    
+class Feedback(Inquiry):
+    subject = models.CharField(max_length = 60, blank=True)  
+    body = models.TextField()
+
+
 

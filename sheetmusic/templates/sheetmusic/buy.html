@@ -37,7 +37,7 @@
                     <a class="nav-link"  aria-current="page" href="{% url 'index' %}">A Cappella</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Inquiries</a>
+                    <a class="nav-link" href="{% url 'contact' %}">Inquiries</a>
                 </li>
         </div>
     </nav>
@@ -89,9 +89,9 @@
                             </li>
                         </ul>
                         <p class="card-text">All files are downloaded through the browser after purchase</p>
-                        <p class="card-text pt-0">Payments handled through <a href="https://stripe.com/">Stripe</a>
+                        <p class="card-text pt-0">Payments handled through <a href="https://stripe.com/">Stripe</a>.
                         After completing the checkout form, check your email for a receipt from Stripe as well as an email from me 
-                        containing the Musescore (.mscz) file</p>
+                        containing the Musescore (.mscz) file.</p>
                     </div>
                 {% if sheet.price > 0 %}
                     <div class="card-body">
@@ -117,6 +117,7 @@
                         </ul>
                     </div>
                 {% endif %}
+                    <a href="#checkout" class="btn-primary btn" style="justify-self:center">Proceed to Checkout</a>
                 </div>
             </div>
         </div>

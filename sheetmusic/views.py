@@ -3,7 +3,7 @@ from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from .models import Sheet, Order
+from .models import Sheet, Order, Request, Feedback
 
 import os
 import base64
@@ -133,6 +133,27 @@ def buy(request, sheet_id: int):
     }
     return render(request, "sheetmusic/buy.html", context)
 
+def contact_form(request):
+    request_fields = Request.field_set()
+    request_labels = {field: field.replace("_"," ").capitalize() 
+                      for field in request_fields}
+    
+    feedback_fields = Feedback.field_set()
+    feedback_labels = {field: field.replace("_"," ").capitalize() 
+                      for field in feedback_fields}
+
+    context = {
+        "request_labels": request_labels,
+        "feedback_labels": feedback_labels,
+    }
+    return render(request, 'sheetmusic/contact_form.html', context)
+
+def contact_submit(request)->HttpResponse:
+    #create new Request or Feedback
+
+    return HttpResponse(status = 200)
+
+
 """
     Stripe API routes
 """
@@ -217,20 +238,6 @@ def sesh_status(request)->JsonResponse:
     print(f"order: {order}")
     display_download = order and (order.paid)
     print(f'display_download: {display_download}')
-
-    # try:customer
-    #     order = Order.objects.get(session_id = session.id, sheet__id=product['metadata']['sheet_id'])
-    # except Order.DoesNotExist:
-    #     order = None
-    # print(order)
-    # display_download = (order) and (not order.fulfilled) and (order.paid)
-    # print(f"display_download: {display_download}")
-    # if display_download:
-    #     sheet = Sheet.objects.get(id = product['metadata']['sheet_id'])
-    #     filetype = 'zip'
-    #     order_pkg = _serializeFile(sheet, filetype)
-    #     order.fulfilled = True
-    #     order.save()
 
     session_details = {
         "status": session.status,
