@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from .models import Sheet, Order, Request, Feedback
+from .forms import FeedbackForm, RequestForm
 
 import os
 import base64
@@ -134,24 +135,28 @@ def buy(request, sheet_id: int):
     return render(request, "sheetmusic/buy.html", context)
 
 def contact_form(request):
-    request_fields = Request.field_set()
-    request_labels = {field: field.replace("_"," ").capitalize() 
-                      for field in request_fields}
-    
-    feedback_fields = Feedback.field_set()
-    feedback_labels = {field: field.replace("_"," ").capitalize() 
-                      for field in feedback_fields}
+    req_form = RequestForm(label_suffix="")
+    fdbk_form = FeedbackForm(label_suffix="")
 
     context = {
-        "request_labels": request_labels,
-        "feedback_labels": feedback_labels,
+        "req_form": req_form,
+        "fdbk_form": fdbk_form,
     }
     return render(request, 'sheetmusic/contact_form.html', context)
 
 def contact_submit(request)->HttpResponse:
-    #create new Request or Feedback
+    #validate form
+    #if successful create new Request or Feedback, send email, set success message
+    #else, set error message
+    #return render contact_form again, display banner with msg
 
-    return HttpResponse(status = 200)
+    if (request.POST['formtype'] == 'request'):
+        return HttpResponse(status = 200)
+    elif (request.POST['formtype'] == 'feedback'):
+
+        return HttpResponse(status = 200)
+    else:
+        return HttpResponse(status = 400)
 
 
 """

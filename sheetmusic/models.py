@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Sheet(models.Model):
     # A sheet has many orders
     title = models.CharField(max_length = 100)
@@ -40,7 +41,8 @@ class Order(models.Model):
 class Inquiry(models.Model): #abstract base class, no table in db
     name = models.CharField(max_length = 60)
     email = models.EmailField(max_length=100)
-    responded = models.BooleanField(default = False)  
+    responded = models.BooleanField(default = False)
+    created_at = models.DateTimeField(auto_now_add = True)
 
     class Meta: 
         abstract = True
@@ -48,23 +50,28 @@ class Inquiry(models.Model): #abstract base class, no table in db
     def __str__(self):
         return f"{self.name} - {self.subject}; responded: {self.responded}"
     
-    @classmethod #to make form construction easier
+    @classmethod 
     def field_set(cls)->list[str]:
         return [field.name for field in cls._meta.fields 
-                if (field.name != 'id' and 
-                field.name != 'responded')]
+                if (field.name not in ['id','email','name','responded', 'created_at'])]
+
 
 class Request(Inquiry):
-    title = models.CharField(max_length = 100)
+    arrangement_name = models.CharField(max_length = 100)
+    original_artist = models.CharField(max_length = 50, default = '', blank=True)
     use_context = models.TextField()
     additional_info = models.TextField(blank=True)
 
     def __str__(self):
         return f"{super().__str__}; {self.title}"
     
+    
 class Feedback(Inquiry):
     subject = models.CharField(max_length = 60, blank=True)  
-    body = models.TextField()
+    context = models.TextField()
+
+
+
 
 
 
