@@ -135,8 +135,20 @@ def buy(request, sheet_id: int):
     return render(request, "sheetmusic/buy.html", context)
 
 def contact_form(request):
-    req_form = RequestForm(label_suffix="")
-    fdbk_form = FeedbackForm(label_suffix="")
+    req_form = RequestForm(label_suffix="", initial = { #for testing only
+            'name': 'aa t',
+            'email': 'aaronteng2779@gmail.com',
+            'arrangement_name': 'Blackbird',
+            'original_artist': 'The Beatles',
+            'use_context': 'asdf',
+            'additional_info': '',
+        })
+    fdbk_form = FeedbackForm(label_suffix="", initial = { #for testing only
+            'name': 'aa t',
+            'email': 'aaronteng2779@gmail.com',
+            'subject': 'Blackbird',
+            'context': 'The Beatles',
+        })
 
     context = {
         "req_form": req_form,
@@ -144,20 +156,38 @@ def contact_form(request):
     }
     return render(request, 'sheetmusic/contact_form.html', context)
 
-def contact_submit(request)->HttpResponse:
-    #validate form
-    #if successful create new Request or Feedback, send email, set success message
-    #else, set error message
-    #return render contact_form again, display banner with msg
+def _validateForm(form, render_ctxt):
+    if form.is_valid():
+        inst = form.save()
+        render_ctxt['msg'] = 'Your response has been recorded'
+        print(inst)
+    else: 
+        print(form.errors.get_json_data())
+        print(type(form.errors.get_json_data()))
+        print(str(form.errors.get_json_data()['email']))
+        render_ctxt['error_dict'] = form.errors.get_json_data()
+        render_ctxt['msg'] = 'Invalid form submission'
 
-    if (request.POST['formtype'] == 'request'):
-        return HttpResponse(status = 200)
-    elif (request.POST['formtype'] == 'feedback'):
-
-        return HttpResponse(status = 200)
-    else:
-        return HttpResponse(status = 400)
-
+def contact_submit(request):
+    context = {'error_dict': None}
+    try:
+        if (request.POST['formtype'] == 'request'):
+            req_form = RequestForm(request.POST)
+            _validateForm(req_form, context)
+            context['req_form'] = req_form
+            context['fdbk_form'] = FeedbackForm(label_suffix="")
+        elif (request.POST['formtype'] == 'feedback'):
+            fdbk_form = FeedbackForm(request.POST)
+            _validateForm(fdbk_form, context)
+            context['fdbk_form'] = fdbk_form
+            context['req_form'] = RequestForm(label_suffix="")
+        else:
+            print('could not determine form type')
+            return HttpResponse(status = 400)
+    except KeyError as e:
+        print (str(e))
+    
+    return render(request, 'sheetmusic/contact_form.html', context)
 
 """
     Stripe API routes

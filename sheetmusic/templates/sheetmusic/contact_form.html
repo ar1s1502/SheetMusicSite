@@ -4,7 +4,6 @@
 {%load sheetmusic_tags %}
 <head>
     <meta charset="utf-8">
-    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Aaron Teng's music website, Computer Science & Music nerd. A cappella arrangements, original classical compositions">
   
@@ -31,6 +30,31 @@
         </div>
     </nav>
 
+   {% if msg %}
+    <div class="alert" id="checkout_banner" style="display:none"> 
+        <h4 class="alert-heading" id="banner_header">{{msg}}</h4>
+        {% if error_dict %}
+            {{error_dict|json_script:"error_dict"}}
+            <p>The following fields had errors:</p>
+            <div class="list-group"></ul>
+            {% for field, err in error_dict.items %}
+                <ul class="list-group-item-danger">{{field}}: {{err.0.message}}</p>
+            {% endfor %}
+            </div>
+        {% else %}
+            <small>Check your inbox for a confirmation email</small>
+        {% endif %}
+        <hr class="m-1">
+        <div class="container justify-content-end m-0 pe-3" style="width: 100%">
+            <button class="btn btn-secondary" id="closebtn">Dismiss</button>
+        </div>
+    </div>
+    <script>
+        const contact_form_appurl = "{% url 'contact' %}"
+    </script>
+    <script src = "{% static 'sheetmusic/js/contact_submit.js' %}"></script>
+    {% endif %}
+
     <!-- {% if err_msg %}    
                 banner for displaying error
             {% endif %} -->
@@ -49,19 +73,19 @@
     <div class="container" id="feedback_div" style="display:none">
         <form action="{% url 'contact_submit' %}" method="post" class="justify-content-center">
         {% csrf_token %}
-        <fieldset class="mb-2">
+        <fieldset class="mb-4">
             <legend><h3>Contact Info</h3></legend>
-            <div class="form-group mb-2">
-                <label for="name">Name</label>
-                <input type="text" class="form-control mb-2" name="name" id="name">
-                <label for="email">Email</label>
-                <input type="text" class="form-control" name="email" id="email" placeholder="yourname@example.com">
-                <small class="form-text text-muted mb-2">Enter the email address that you want the response sent to</small>
+            {% for field in fdbk_form.visible_fields|slice:":2" %}
+            <div class="form-group">
+                {{field.label_tag}}
+                <div class="mb-2">{{field}}</div>
             </div>
+            {% endfor %}
+            <small class="form-text text-muted">Enter the email address that you want the response sent to</small>
         </fieldset>
         <fieldset class="mb-4" id="feedback_form">
             <legend><h3>Questions or Comments?</h3></legend>
-            {% for field in fdbk_form %}
+            {% for field in fdbk_form.visible_fields|slice:"2:" %}
             <div class="form-group">
                 {{field.label_tag}}
                 <div class="mb-2">{{field}}</div>
@@ -69,26 +93,26 @@
             {% endfor %}
         </fieldset>
         <input type="hidden" name="formtype" value="feedback">
-        <input type="submit" value="Submit" class="btn btn-outline-primary">
+        <input type="submit" value="Submit" class="btn btn-outline-primary" id="req_submit">
         </form>
     </div>
 
     <div class="container" id="request_div">
         <form action="{% url 'contact_submit' %}" method="post">
         {% csrf_token %}
-        <fieldset class="mb-2">
+        <fieldset class="mb-4">
             <legend><h3>Contact Info</h3></legend>
-            <div class="form-group mb-2">
-                <label class="_serializeFile" for="name">Name</label>
-                <input type="text" class="form-control mb-2" name="name" id="name" required>
-                <label class="" for="email">Email</label>
-                <input type="text" class="form-control" name="email" id="email" placeholder="yourname@example.com" required>
-                <small class="form-text text-muted mb-2">Enter the email address that you want the response sent to</small>
-            </div>
+            {% for field in req_form.visible_fields|slice:":2" %}
+            <div class="form-group">
+                {{field.label_tag}}
+                <div class="mb-2">{{field}} {{field.er}}</div>
+            </div>    
+            {% endfor %}
+            <small class="form-text text-muted">Enter the email address that you want the response sent to</small>
         </fieldset>
         <fieldset class="mb-4" id="request_form">
             <legend><h3>Arrangement Request</h3></legend>
-            {% for field in req_form %}
+            {% for field in req_form.visible_fields|slice:"2:" %}
             <div class="form-group">
                 {{field.label_tag}}
                 <div class="mb-2">{{field}}</div>
@@ -96,7 +120,7 @@
             {% endfor %}
         </fieldset>
         <input type="hidden" name="formtype" value="request">
-        <input type="submit" value="Submit" class="btn btn-outline-primary">
+        <input type="submit" value="Submit" class="btn btn-outline-primary" id="req_submit">
         </form>
     </div>
 

@@ -48,26 +48,26 @@ class Inquiry(models.Model): #abstract base class, no table in db
         abstract = True
 
     def __str__(self):
-        return f"{self.name} - {self.subject}; responded: {self.responded}"
+        return f"{self.name} - {self.created_at}; responded: {self.responded}"
     
     @classmethod 
-    def field_set(cls)->list[str]:
-        return [field.name for field in cls._meta.fields 
-                if (field.name not in ['id','email','name','responded', 'created_at'])]
+    def field_set(cls)->dict[str, any]:
+        return {field.name for field in cls._meta.fields 
+                if (field.name not in ['id','email','name','responded', 'created_at'])}
 
 
 class Request(Inquiry):
     arrangement_name = models.CharField(max_length = 100)
-    original_artist = models.CharField(max_length = 50, default = '', blank=True)
+    original_artist = models.CharField(max_length = 50, default = '')
     use_context = models.TextField()
     additional_info = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{super().__str__}; {self.title}"
+        return f"{super().__str__()}; {self.arrangement_name}"
     
     
 class Feedback(Inquiry):
-    subject = models.CharField(max_length = 60, blank=True)  
+    subject = models.CharField(max_length = 60)  
     context = models.TextField()
 
 
