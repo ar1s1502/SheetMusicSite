@@ -31,33 +31,29 @@
     </nav>
 
    {% if msg %}
-    <div class="alert" id="checkout_banner" style="display:none"> 
-        <h4 class="alert-heading" id="banner_header">{{msg}}</h4>
-        {% if error_dict %}
-            {{error_dict|json_script:"error_dict"}}
-            <p>The following fields had errors:</p>
-            <div class="list-group"></ul>
-            {% for field, err in error_dict.items %}
-                <ul class="list-group-item-danger">{{field}}: {{err.0.message}}</p>
-            {% endfor %}
+        <div class="alert" id="checkout_banner" style="display:none"> 
+            <h4 class="alert-heading" id="banner_header">{{msg}}</h4>
+            {% if error_dict %}
+                {{error_dict|json_script:"error_dict"}}
+                <p class="mb-0">The following fields had errors:</p>
+                <ul class="list-group ms-3">
+                {% for field, err in error_dict.items %}
+                    <li class="list-group-item-danger">{{field|title}}: {{err.0.message}}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <small>Check your inbox for a confirmation email</small>
+            {% endif %}
+            <hr class="m-2">
+            <div class="list-group list-group-horizontal justify-content-end m-0 pe-3" style="width: 100%">
+                <button class="btn btn-secondary" id="closebtn">Dismiss</button>
             </div>
-        {% else %}
-            <small>Check your inbox for a confirmation email</small>
-        {% endif %}
-        <hr class="m-1">
-        <div class="container justify-content-end m-0 pe-3" style="width: 100%">
-            <button class="btn btn-secondary" id="closebtn">Dismiss</button>
         </div>
-    </div>
-    <script>
-        const contact_form_appurl = "{% url 'contact' %}"
-    </script>
-    <script src = "{% static 'sheetmusic/js/contact_submit.js' %}"></script>
+        <script>
+            const contact_form_appurl = "{% url 'contact' %}"
+        </script>
+        <script src = "{% static 'sheetmusic/js/contact_submit.js' %}"></script>
     {% endif %}
-
-    <!-- {% if err_msg %}    
-                banner for displaying error
-            {% endif %} -->
 
     <div class="list-group list-group-horizontal align-items-center mt-2">
         <button class="btn btn-outline-primary border-0" id="request_btn">

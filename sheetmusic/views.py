@@ -3,7 +3,7 @@ from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from .models import Sheet, Order, Request, Feedback
+from .models import Sheet, Order
 from .forms import FeedbackForm, RequestForm
 
 import os
@@ -72,7 +72,7 @@ def _fulfillOrder(session_id):
         thankyoumsg = """Hello!
         Attached below is a .mscz file of the Musescore4 Project that created the sheet music. 
         (The .zip file is sometimes too large to be linked as an attachment).         
-        Opening the .mscz file with Musescore will give you access to the full score.
+        Opening the .mscz file with Musescore4 will give you access to the full score.
         If there is any mistake in the sheet music, let me know and I will send you a fixed copy, or you can edit it yourself
 
     - Aaron"""
@@ -162,9 +162,6 @@ def _validateForm(form, render_ctxt):
         render_ctxt['msg'] = 'Your response has been recorded'
         print(inst)
     else: 
-        print(form.errors.get_json_data())
-        print(type(form.errors.get_json_data()))
-        print(str(form.errors.get_json_data()['email']))
         render_ctxt['error_dict'] = form.errors.get_json_data()
         render_ctxt['msg'] = 'Invalid form submission'
 
@@ -183,10 +180,27 @@ def contact_submit(request):
             context['req_form'] = RequestForm(label_suffix="")
         else:
             print('could not determine form type')
-            return HttpResponse(status = 400)
+            context['msg'] = 'Invalid form submission'
+            context['fdbk_form'] = FeedbackForm(label_suffix="")
+            context['req_form'] = RequestForm(label_suffix="")
     except KeyError as e:
         print (str(e))
+        return HttpResponse(status = 400)
     
+    if (not context['error_dict']):
+        msg = """This is just to acknowledge that I have received your inquiry. 
+I will try to get back to you as soon as I can. Thanks!
+- Aaron"""
+        #send confirmation emails
+        _sendEmail(to_addr = request.POST['email'],
+                   subj = "Thanks for Reaching Out!",
+                   msg_txt = msg, file=None, file_name=None)
+        msg = f"""{request.POST['name']} - {request.POST['formtype']} - {request.POST['email']}:
+    {(request.POST)}"""
+        _sendEmail(to_addr = "aaronteng2779@gmail.com",
+                   subj = f"New Inquiry from {request.POST['name']}",
+                   msg_txt = msg, file=None, file_name=None)
+
     return render(request, 'sheetmusic/contact_form.html', context)
 
 """
