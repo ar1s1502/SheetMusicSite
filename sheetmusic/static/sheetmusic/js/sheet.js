@@ -9,7 +9,7 @@ var sheet_price = JSON.parse(document.getElementById('arr-price').textContent);
 console.log('sheet_price: ' + sheet_price);
 
 var MAX_PREVIEW_PAGES = 3; 
-const CANV_WIDTH = Math.max(window.innerWidth * 0.55, 500); //canvas should be at least 500 px wide
+const CANV_WIDTH = Math.max(window.innerWidth * 0.45, 500); //canvas should be at least 500 px wide
 
 var pdfDoc,
     page,

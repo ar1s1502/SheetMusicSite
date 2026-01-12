@@ -108,15 +108,9 @@ def index(request):
 def sheet(request, sheet_id: int):
     sheet_music = Sheet.objects.get(id = sheet_id)
     sheet_bytes = _serializeFile(sheet_music, "pdf")
-    if (sheet_music.price == 0):
-        sheet_price = "Free!"
-    else:
-        sheet_price = f"${(sheet_music.price/100):.2f}"
-
     context = {
         "sheet": sheet_music,
         "sheet_bytes": sheet_bytes,
-        "price": sheet_price
     }
     return render(request, "sheetmusic/sheet.html", context)
 
@@ -135,7 +129,7 @@ def buy(request, sheet_id: int):
     return render(request, "sheetmusic/buy.html", context)
 
 def contact_form(request):
-    req_form = RequestForm(label_suffix="", initial = { #for testing only
+    req_form = RequestForm(label_suffix="", initial = { #TODO: for testing only, remove for deployment
             'name': 'aa t',
             'email': 'aaronteng2779@gmail.com',
             'arrangement_name': 'Blackbird',

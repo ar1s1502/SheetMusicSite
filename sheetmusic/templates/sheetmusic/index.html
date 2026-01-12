@@ -1,34 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 {%load static%}
+{%load sheetmusic_tags %}
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Aaron Teng's music website, Computer Science & Music nerd. A cappella arrangements, original classical compositions">
+    <meta name="description" content="Aaron Teng music website, Computer Science & Music nerd. A cappella arrangements, original classical compositions">
   
     <title>Aaron Teng | Music Website</title>
   
-    <link rel="stylesheet" href="{% static 'sheetmusic/css/styles.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"  integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'sheetmusic/css/styles.css' %}">
     <!-- <link rel="stylesheet" href="https://cdn.plyr.io/3.8.3/plyr.css" /> video/audio CSS plugin -->
 </head>
 <body>
-    <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
-    <script src="{% static 'sheetmusic/js/index.js' %}" type="module"></script>
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-light navbar-expand-sm bg-primary-subtle" data-bs-theme="dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">(Logo here)</a>
-            <ul class="nav nav-pills">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About Me</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link"  aria-current="page" href="#">A Cappella</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'contact' %}">Inquiries</a>
-                </li>
+            <a class="navbar-brand" href="#">(Logo Here)</a>
+            <button class="navbar-toggler border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#site_navbar" aria-controls="site_navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="site_navbar">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-primary-subtle" href="#">About Me</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link text-primary-subtle"  aria-current="page" href="#">A Cappella</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary-subtle" href="{% url 'contact' %}">Inquiries</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -55,40 +61,39 @@
         <script src="{% static 'sheetmusic/js/checkout_confirm.js' %}"></script>
     {% endif %}
 
-    <h1>Arrangements</h1>
-
     {{ pdf_dict|json_script:"arr-pdf" }}
 
-    {%if arrangements %}
-        <table class="table no-header table-hover">
-            <tr>
-                <th style="width:70%">card</th> 
-                <th ></th>
-            </tr>
+    <div class="album py-4">
+        <div class="container">
+            <div class="row">
             {% for arr in arrangements %}
-                <div class="row justify-content-center pb-4">
-                    <div class="col-5" style="padding-left: 8vw">
-                        <div class="card border-3 justify-content-center" id="canvas-card" >
-                        <a href="{{arr.id}}/" class="">
-                            <canvas class="small-canvas" id="canvas-{{arr.id}}"></canvas>
+                <div class="col-lg-4 col-md-6 col-sm-12"> <!--3cols lg screen, 2 cols md screen, 1 col sm-->
+                    <div class="card mb-4 box-shadow rounded-4" id="canvas-card" data-bs-theme="light">
+                        <a href="{% url 'sheet' arr.id %}" class="d-flex justify-content-center" >
+                            <canvas class="small-canvas p-1" id="canvas-{{arr.id}}"></canvas>
                         </a>
-                        </div>
-                    </div>
-                    <div class="col-5" style="padding-right: 8vw">
-                        <div class="card border-0">
-                            <h5 class="card-title">{{ arr.title }} - {{ arr.artist }}</h5>
-                            <h5>{{arr.instr}}</h5>
-                            <audio controls style="width:100%">
+                        
+                        <div class="card-body bg-light rounded-bottom-4" data-bs-theme="light">
+                            <div class="list-group list-group-horizontal justify-content-between mb-2">
+                                <h5 class="list-group-item p-0 m-1 bg-light border-0 text-dark-emphasis" >{{arr.title}} - {{arr.artist}}</h5>
+                                <p class="list-group-item p-0 m-1 bg-light border-0 text-dark-emphasis">Price: {{arr.price|convert_price}}</p>
+                            </div>
+                            <audio controls class="mb-2" style="width:100%">
                                 <source src="{% static arr.mp3_path %}" type="audio/mp3"/>
                                 Your browser doesn't support mp3 audio
                             </audio>
-                            <a href="{{arr.id}}/" class="btn btn-primary" style="border-radius:20px">View this arrangement</a>
+                            <a href="{% url 'sheet' arr.id %}" class="btn btn-primary btn-sm rounded-5">
+                                View this arrangement
+                            </a>
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        </table>
-    {%else%}
-        <p>Sorry, no arrangements listed.</p>
-    {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs" type="module"></script>
+    <script src="{% static 'sheetmusic/js/index.js' %}" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>

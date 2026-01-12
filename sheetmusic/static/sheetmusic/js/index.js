@@ -26,7 +26,8 @@ async function loadPDF(id, pdf_bytes) {
         canvas_id = 'canvas-'+id;
         canvas = document.getElementById(canvas_id);
         const context = canvas.getContext('2d');
-        canvas.height = Math.floor(outputScale * viewport.height / 2);
+        console.log( context)
+        canvas.height = Math.floor(outputScale * viewport.height/2);
         canvas.width = Math.floor(outputScale * viewport.width );
         //displayed dimension still original scaled viewport dimension
         canvas.style.height = ( viewport.height/2) + 'px';

@@ -1,6 +1,6 @@
-ul {
+/* ul {
     list-style-type: none;
-}
+} */
 
 .no-header th{
     display: none;
@@ -12,14 +12,15 @@ ul {
 
 #canvas-card {
     transition: 0.3s;
-    border: 1px solid black;
     margin: 0px;
 }
 
 #canvas-card:hover{
-    box-shadow: 5px 4px rgba(0,0,0,0.5)
+    box-shadow: 5px 4px rgba(13, 13, 13, 0.5);
+    border: 0.5px solid black;
 
 }
+
 
 #sheetmp3 {
     padding-left: 5vw;
@@ -33,6 +34,12 @@ ul {
 
 .small-canvas {
     max-width:100%;
-    height: auto;
 }
 
+:root {
+    --bs-navy: rgb(27, 27, 177);
+}
+
+.bg-navy {
+    background-color: var(--bs-navy);
+}
