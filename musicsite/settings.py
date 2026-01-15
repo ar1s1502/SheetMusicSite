@@ -81,9 +81,17 @@ WSGI_APPLICATION = 'musicsite.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql', #version 18.1
+        'NAME': 'musicsite',
+        'USER': 'django',
+        'PASSWORD': 'djangomusicsite18',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

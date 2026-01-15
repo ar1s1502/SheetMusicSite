@@ -3,30 +3,6 @@
         "model": "sheetmusic.Sheet",
         "pk": 1,
         "fields": {
-            "title": "Wildflower",
-            "artist": "Billie Eilish",
-            "vrsn": "9-25",
-            "instr": "SMATBaB Choir, Vocal Percussion",
-            "price": 200,
-            "synopsis": "Imagine supporting your friend through a breakup, and then proceeding to date your friend's ex. That is the context for Wildflower, and Wildflower is the name of the company which Billie's friend ran. The lyrics contain two perspectives, one being Billie Eilish, and the other being the friend's-ex-turned-boyfriend. I split the solo into two parts based off that.\nPerformance wise, really try to bring out the dynamic contrast, and don't afraid to really sing loudly on the peaks of the phrase." 
-        }
-    },
-    {
-        "model": "sheetmusic.Sheet",
-        "pk": 2,
-        "fields": {
-            "title": "2002",
-            "artist": "Anne-Marie",
-            "vrsn": "11-17",
-            "instr": "SMATBaB Choir, Vocal Percussion",
-            "price": 200,
-            "synopsis": "Feel-good throwback song with a lot of references to various 2000's hits. I did modify the lyrics a bit in the second verse, so now it's a 2010's throwback too I guess."
-        }
-    },
-    {
-        "model": "sheetmusic.Sheet",
-        "pk": 3,
-        "fields": {
             "title": "Shelter",
             "artist": "Tori Kelly",
             "vrsn": "12-4",
@@ -37,7 +13,7 @@
     },
     {
         "model": "sheetmusic.Sheet",
-        "pk": 4,
+        "pk": 2,
         "fields": {
             "title": "Bending My Rules",
             "artist": "FLO",
@@ -48,12 +24,36 @@
         }
     },
     {
+        "model": "sheetmusic.Sheet",
+        "pk": 3,
+        "fields": {
+            "title": "Wildflower",
+            "artist": "Billie Eilish",
+            "vrsn": "9-25",
+            "instr": "SMATBaB Choir, Vocal Percussion",
+            "price": 200,
+            "synopsis": "Imagine supporting your friend through a breakup, and then proceeding to date your friend's ex. That is the context for Wildflower, and Wildflower is the name of the company which Billie's friend ran. The lyrics contain two perspectives, one being Billie Eilish, and the other being the friend's-ex-turned-boyfriend. I split the solo into two parts based off that.\nPerformance wise, really try to bring out the dynamic contrast, and don't afraid to really sing loudly on the peaks of the phrase." 
+        }
+    },
+    {
+        "model": "sheetmusic.Sheet",
+        "pk": 4,
+        "fields": {
+            "title": "2002",
+            "artist": "Anne-Marie",
+            "vrsn": "11-17",
+            "instr": "SMATBaB Choir, Vocal Percussion",
+            "price": 200,
+            "synopsis": "Feel-good throwback song with a lot of references to various 2000's hits. I did modify the lyrics a bit in the second verse, so now it's a 2010's throwback too I guess."
+        }
+    },
+    {
         "model":"sheetmusic.Sheet",
         "pk": 5,
         "fields": {
             "title": "Cherry Wine",
             "artist": "grentperez",
-            "vrsn": "342",
+            "vrsn": "1-10",
             "price": 200,
             "instr": "SATB Choir, Vocal Percussion",
             "synopsis": "Grentperez's bossa nova gem. The part marked 'Instrumental' (m.45) can be done with mouth trumpet or as an upper voice scat solo. In general for the soloists, the written rhythms don't have to be exactly followed; rubato is encouraged. Lines between notes (eg m. 14, m. 19 - 4th beat) are glissandos. Like a sigh." 
