@@ -18,9 +18,14 @@ stripe.api_key = settings.STRIPE_SK
 endpt_sec = settings.WEBHOOK_SEC 
 
 def _serializeFile(arr: Sheet, file_type: str):
-    with open("sheetmusic/static/" + arr.file_path(filetype = file_type), "rb") as f:
-        pdf_bytes = f.read()
-        return base64.b64encode(pdf_bytes).decode('utf-8')
+    try:
+        with open("sheetmusic/static/" + arr.file_path(filetype = file_type), "rb") as f: #for local dev
+            pdf_bytes = f.read()
+            return base64.b64encode(pdf_bytes).decode('utf-8')
+    except FileNotFoundError:
+        with open(settings.STATIC_ROOT + arr.file_path(filetype=file_type), "rb") as f:   #for prod
+            pdf_bytes = f.read()
+            return base64.b64encode(pdf_bytes).decode('utf-8')
 
 def _sendEmail(to_addr: str, subj: str,
                msg_txt: str | None, file: bytes | None, file_name: str | None):

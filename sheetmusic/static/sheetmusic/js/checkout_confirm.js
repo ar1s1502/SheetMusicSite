@@ -6,6 +6,12 @@ var btn,
     banner_header = document.getElementById('banner_header'),
     banner_text = document.getElementById('banner_text');
 
+//TODO: implement re-send Email
+// async function _reqEmail() {
+//     const response = await fetch(url);
+
+// }
+
 async function validateCheckoutSession() {
     const response = await fetch(sessionview_appurl);
     const session = await response.json();
@@ -23,7 +29,8 @@ async function validateCheckoutSession() {
             checkout_banner.classList.add("alert-success");
             banner_header.textContent = "Thank you for your purchase!";
             banner_text.textContent = `Please check your Downloads folder for 
-                ${session.download_title}.${session.filetype}. A copy of the receipt will be sent to ${session.customer_email}.`;
+                ${session.download_title}.${session.filetype}. A copy of the receipt and ${session.download_title}'s
+                Musescore4 (.mscz) file will be sent to ${session.customer_email}.`;
 
             btn = document.getElementById('downloadbtn');
             btn.onclick = ()=> {
@@ -33,6 +40,10 @@ async function validateCheckoutSession() {
                 link.click();
             }
             btn.click()
+            // btn = document.getElementById('emailbtn'); TODO: implement re-send email
+            // btn.onclick = ()=> {
+            //     _reqEmail()
+            // }
         } else {
             checkout_banner.classList.add("alert-danger");
             banner_header.textContent = "Something went wrong";
