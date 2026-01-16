@@ -33,8 +33,14 @@ GMAIL_APP_PW = config('GMAIL_APP_PW')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast = bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8081", #for nginx dev
+    "http://127.0.0.1:8081",
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -87,9 +93,9 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql', #version 18.1
-        'NAME': 'musicsite',
-        'USER': 'django',
-        'PASSWORD': 'djangomusicsite18',
+        'NAME': config('POSTGRES_DBNAME'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PW'),
         'HOST': 'localhost',
         'PORT': '5432',
     }

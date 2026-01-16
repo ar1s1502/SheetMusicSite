@@ -72,8 +72,11 @@ def _fulfillOrder(session_id):
         order.save()
         print(f"Order from _fulfillOrder: {order}")
         #email as thank you + customer services. 
-        with open(f"sheetmusic/static/{sheet.file_path(filetype="mscz")}", "rb") as f:
-            bytes = f.read()
+        try:
+            with open(settings.STATIC_ROOT + order.sheet.file_path(filetype="mscz"), "rb") as f:   #for prod
+                bytes = f.read()
+        except FileNotFoundError as e:
+            print(str(e))
         thankyoumsg = """Hello!
         Attached below is a .mscz file of the Musescore4 Project that created the sheet music. 
         (The .zip file is sometimes too large to be linked as an attachment).         
@@ -85,7 +88,7 @@ def _fulfillOrder(session_id):
                    subj = "Your Sheet Music Order",
                    msg_txt = thankyoumsg,
                    file = bytes,
-                   file_name = sheet.title.replace(" ","") + ".mscz")
+                   file_name = order.sheet.title.replace(" ","") + ".mscz")
 
     return
 

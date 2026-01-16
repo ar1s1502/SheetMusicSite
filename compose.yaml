@@ -1,0 +1,53 @@
+services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), and nginx (http server)
+  db:
+    image: postgres:18
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      # hardcoded db config environ var names
+      - POSTGRES_DB=${POSTGRES_DBNAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PW}
+    ports:
+      - "5432:5432"
+     
+  web:
+    build:  
+      context: .
+    depends_on: 
+      - db
+    command: >
+      sh -c "python manage.py migrate &&
+            python manage.py collectstatic --noinput &&
+            gunicorn --bind 0.0.0.0:8000 musicsite.wsgi"
+    volumes:
+      - .:/app
+      - static_volume:/app/_static
+    expose:
+      - "8000"
+    environment:
+      # django app environ var names, passed to container from host's .env
+      - SECRET_KEY=${SECRET_KEY}
+      - STRIPE_SK=${STRIPE_SK}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - GMAIL_APP_PW=${GMAIL_APP_PW}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PW=${POSTGRES_PW} 
+
+  nginx:
+    image: nginx:1.29-alpine
+    restart: always
+    ports:
+      - "80:80"
+      #- "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/_static:ro #read only access to _static files
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
