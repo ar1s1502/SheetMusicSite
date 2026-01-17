@@ -10,7 +10,7 @@ class Sheet(models.Model):
     synopsis = models.TextField(null=True, default=None)
     instr = models.CharField(max_length=50)
     price = models.IntegerField(default = 200) #in cents
-
+    
     def __str__(self):
         return f"{self.title} - {self.artist}"
     

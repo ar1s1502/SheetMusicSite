@@ -36,7 +36,7 @@ DEBUG = config('DEBUG', default=False, cast = bool)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8081", #for nginx dev
+    "http://localhost:8081", #for nginx local dev
     "http://127.0.0.1:8081",
 ]
 
