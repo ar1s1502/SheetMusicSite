@@ -13,8 +13,9 @@ from email.message import EmailMessage
 import json
 import stripe
 
-#TODO: replace stripe test api key
+#TODO: replace stripe test api key 
 stripe.api_key = settings.STRIPE_SK
+#sandbox secret from stripe TODO: replace with live stripe webhook sec
 endpt_sec = settings.WEBHOOK_SEC 
 
 def _serializeFile(arr: Sheet, file_type: str):
@@ -125,32 +126,31 @@ def sheet(request, sheet_id: int):
 def buy(request, sheet_id: int):
     sheet_music = Sheet.objects.get(id = sheet_id)
     sheet_bytes = _serializeFile(sheet_music, "pdf")
-    if (sheet_music.price == 0):
-        sheet_price = "Free!"
-    else:
-        sheet_price = f"${(sheet_music.price/100):.2f}"
     context = {
         "sheet": sheet_music,
         "sheet_bytes": sheet_bytes,
-        "price": sheet_price,
     }
     return render(request, "sheetmusic/buy.html", context)
 
 def contact_form(request):
-    req_form = RequestForm(label_suffix="", initial = { #TODO: for testing only, remove for deployment
-            'name': 'aa t',
-            'email': 'aaronteng2779@gmail.com',
-            'arrangement_name': 'Blackbird',
-            'original_artist': 'The Beatles',
-            'use_context': 'asdf',
-            'additional_info': '',
-        })
-    fdbk_form = FeedbackForm(label_suffix="", initial = { #for testing only
-            'name': 'aa t',
-            'email': 'aaronteng2779@gmail.com',
-            'subject': 'Blackbird',
-            'context': 'The Beatles',
-        })
+    req_form = RequestForm(label_suffix="", 
+                        #    initial = { #for testing only, remove for deployment
+                        #             'name': 'aa t',
+                        #             'email': 'aaronteng2779@gmail.com',
+                        #             'arrangement_name': 'Blackbird',
+                        #             'original_artist': 'The Beatles',
+                        #             'use_context': 'asdf',
+                        #             'additional_info': '',
+                        #     },
+                            )
+    fdbk_form = FeedbackForm(label_suffix="", 
+                            #  initial = { #for testing only
+                            #             'name': 'aa t',
+                            #             'email': 'aaronteng2779@gmail.com',
+                            #             'subject': 'Blackbird',
+                            #             'context': 'The Beatles',
+                            #     },
+                            )
 
     context = {
         "req_form": req_form,
@@ -226,16 +226,18 @@ def checkout(request)->JsonResponse:
         })   
     try: 
         abs_return_path = request.build_absolute_uri(reverse('index'))
-
+        desc = f"{sheet.title} by {sheet.artist}, for {sheet.instr.replace(",", " and")}. Includes the sheet music as a pdf, as well as mp3's of part tracks."
+        
         session = stripe.checkout.Session.create(
             ui_mode = 'embedded',
             line_items=[{
                     'price_data': {
                         'currency': 'usd',
                         'product_data': {
-                            'name': sheet.title
+                            'name': sheet.title,
+                            'description': desc,
                         },
-                    'unit_amount': sheet.price,
+                        'unit_amount': sheet.price,
                     },
                     'quantity': 1,
                     'metadata': {
@@ -258,7 +260,7 @@ def checkout(request)->JsonResponse:
             return_url= f"{abs_return_path}?session_id={{CHECKOUT_SESSION_ID}}",
         )
     except Exception as e:
-        print(str(e))
+        print("stripe error: " + str(e))
         return JsonResponse({
             "SessionCreateError": str(e)
         })
@@ -305,7 +307,7 @@ def sesh_status(request)->JsonResponse:
 #For some reason, this triggers after get_sesh_status if product is free, and before get_sesh_status if product isn't. 
 #Hence the weird order fulfillment logic where an order can be created both in get_sesh_status and in _fulfillOrder
 #Also because the webhook is returning a response to stripe, you can not route to app urls from this function (and conseq. _fulfillOrder)
-@csrf_exempt #TODO remove after deployment
+@csrf_exempt
 def payment_webhook(request):
     try: 
         post_body = request.body

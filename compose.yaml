@@ -20,6 +20,7 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
       - db
     command: >
       sh -c "python manage.py migrate &&
+            python manage.py loaddata sheets.json && 
             python manage.py collectstatic --noinput &&
             gunicorn --bind 0.0.0.0:8000 musicsite.wsgi"
     volumes:

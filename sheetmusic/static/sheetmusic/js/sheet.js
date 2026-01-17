@@ -1,9 +1,7 @@
 import * as pdfjsLib from "https://unpkg.com/pdfjs-dist@latest/build/pdf.min.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@latest/build/pdf.worker.min.mjs";
-//#TODO: add pdf full screen preview on canvas click?
-//probably add some sort of error handling if pdf_bytes are not found
-var pdf_bytes = JSON.parse(document.getElementById('arr-pdf').textContent);
-pdf_bytes = atob(pdf_bytes);
+
+var pdf_bytes = atob(JSON.parse(document.getElementById('arr-pdf').textContent));
 
 var sheet_price = JSON.parse(document.getElementById('arr-price').textContent);
 console.log('sheet_price: ' + sheet_price);
@@ -39,11 +37,10 @@ nextBtn.addEventListener('click', ()=> {
 function disableBtn(btn, bool) {
     if (bool) {
         btn.style.setProperty('visibility', 'hidden');
-        btn.style.setProperty('disabled', bool + '');
     } else {    
         btn.style.setProperty('visibility', 'visible');
-        btn.style.setProperty('disabled', bool + '');
     }
+    btn.disabled = bool
 }
 
 async function renderPage() {
@@ -77,14 +74,19 @@ async function renderPage() {
         console.log("canvas-card width: " + (30 + CANV_WIDTH) + 'px');
         canvas_card.style.setProperty('max-width', (Math.trunc(CANV_WIDTH + 30)) + 'px'); //+30 so card border isn't cut off
         page.cleanup();
-    } 
-    catch(err) {
+    } catch(err) {
         console.error(err);
     }
-    if (pgNum == 1) {
+
+    if (pdfDoc.numPages == 1) {
+        disableBtn(nextBtn, true)
+        disableBtn(prevBtn, true)
+    } else if (pgNum == 1) {
         disableBtn(prevBtn, true);
+        disableBtn(nextBtn, false)
     } else if (pgNum == MAX_PREVIEW_PAGES) {
         disableBtn(nextBtn, true);
+        disableBtn(prevBtn, false);
     } else {
         disableBtn(prevBtn, false);
         disableBtn(nextBtn, false);
@@ -104,6 +106,7 @@ async function loadPDF(pdf_bytes) {
     }
     if (sheet_price <= 0) {
         MAX_PREVIEW_PAGES = pdfDoc.numPages
+        console.log('max_prev_pgs: ' + MAX_PREVIEW_PAGES)
     } 
 }
 
