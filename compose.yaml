@@ -6,11 +6,11 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
       - .env.prod
     volumes:
       - postgres_data:/var/lib/postgresql
-    environment:
-      # hardcoded db config environ var names
-      - POSTGRES_DB=${POSTGRES_DBNAME}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PW}
+    # environment:
+    #   # hardcoded db config environ var names
+    #   - POSTGRES_DB=${POSTGRES_DBNAME}
+    #   - POSTGRES_USER=${POSTGRES_USER}
+    #   - POSTGRES_PASSWORD=${POSTGRES_PW}
     ports:
       - "5432:5432"
      
@@ -31,15 +31,15 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
       - static_volume:/app/_static
     expose:
       - "8000"
-    environment:
-      # django app environ var names, passed to container from host's .env
-      - SECRET_KEY=${SECRET_KEY}
-      - STRIPE_SK=${STRIPE_SK}
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
-      - GMAIL_APP_PW=${GMAIL_APP_PW}
-      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PW=${POSTGRES_PW} 
+    # environment:
+    #   # django app environ var names, passed to container from host's .env
+    #   - SECRET_KEY=${SECRET_KEY}
+    #   - STRIPE_SK=${STRIPE_SK}
+    #   - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+    #   - GMAIL_APP_PW=${GMAIL_APP_PW}
+    #   - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+    #   - POSTGRES_USER=${POSTGRES_USER}
+    #   - POSTGRES_PW=${POSTGRES_PW} 
 
   nginx:
     image: nginx:1.29-alpine
