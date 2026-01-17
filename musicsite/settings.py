@@ -33,7 +33,7 @@ GMAIL_APP_PW = config('GMAIL_APP_PW')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast = bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '13.57.79.116']
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8081", #for nginx local dev
