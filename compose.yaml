@@ -2,6 +2,8 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
   db:
     image: postgres:18
     restart: always
+    env_file:
+      - .env.prod
     volumes:
       - postgres_data:/var/lib/postgresql
     environment:
@@ -18,6 +20,8 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
     restart: on-failure
     depends_on: 
       - db
+    env_file:
+      - .env.prod
     command: >
       sh -c "python manage.py migrate &&
             python manage.py loaddata sheets.json && 
