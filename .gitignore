@@ -3,3 +3,4 @@ db.sqlite3
 .env.prod
 **/__pycache__/
 /_static
+/nginx/certs
