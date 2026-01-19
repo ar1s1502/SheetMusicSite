@@ -17,7 +17,7 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
   web:
     build:  
       context: .
-    restart: on-failure
+    restart: always
     depends_on: 
       - db
     env_file:
