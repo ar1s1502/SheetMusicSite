@@ -1,6 +1,5 @@
-// This is a public sample test API key.
 // Don’t submit any personally identifiable information in requests made with this key.
-const stripe = Stripe("pk_test_51SlWzmCxn1NVP4jx0w3tmJ7ax4cVcrkuLfr0WeDDpR3eclQc3fbgyRxRgP8rBMhHRrqW34mPFBfL4BWQWoC9bQ7q00iJiPGFF1");
+const stripe = Stripe("pk_live_51SlblIImJRw0uvRWPsqzFamoN2Knqp95Gck9wX3ftj09Fw6ffe06RP51kgiodzZksQQ93hi7GJCzMcuWpL9egDR400EnBbL8ze");
 
 var sheet_id = JSON.parse(document.getElementById('arr-id').textContent)
 console.log("id of sheet: " + sheet_id)
