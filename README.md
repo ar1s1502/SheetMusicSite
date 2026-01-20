@@ -1,3 +1,4 @@
+https://cappellacatalogue.com 
 ### Tech stack: 
 - Frontend: HTML/Bootstrap/JS
 - Backend: Python (Django)
@@ -40,6 +41,7 @@ tbh, why is it called an _elastic_ IP if it doesn't change? Maybe because it can
 even if it's a little overkill; it's a lot easier to setup because you only have to work with one config file to set up your forwarding, your server IP / servername, SSL, etc., and the syntax is relatively intuitive.
 I found the default given httpd (apache) server config given by homebrew to be very verbose and hard to navigate,
 but to be fair, I'm not very familiar with Apache either.
+
 
 
 
