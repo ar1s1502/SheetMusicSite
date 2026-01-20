@@ -36,10 +36,11 @@ as opposed to manually starting and stopping a postgres service, a gunicorn serv
 but I'm probably going to switch to t4g.micro after that since I don't actually need 2GB of RAM, 1 is enough _I think_), and how to associate an Elastic IP with my instance so that rebooting the server doesn't change my website's IP address (this nomenclature is confusing
 tbh, why is it called an _elastic_ IP if it doesn't change? Maybe because it can be reassociated with different instances? idk)
 - Linux CLI tools: systemctl, apt, tmux
-- Working with nginx. I initially started with Apache and mod_wsgi, since I don't expect my app to have much traffic, but apparently the more "modern" way to do things is with Nginx and Gunicorn WSGI. To beyou  honest, I prefer Nginx
+- Working with nginx. I initially started with Apache and mod_wsgi, since I don't expect my app to have much traffic, but apparently the more "modern" way to do things is with Nginx and Gunicorn WSGI. To be honest, I prefer Nginx
 even if it's a little overkill; it's a lot easier to setup because you only have to work with one config file to set up your forwarding, your server IP / servername, SSL, etc., and the syntax is relatively intuitive.
 I found the default given httpd (apache) server config given by homebrew to be very verbose and hard to navigate,
 but to be fair, I'm not very familiar with Apache either.
+
 
 
 
