@@ -18,9 +18,8 @@ while form validating as well.
 
 
 ### Stuff I learned 
-- Stripe payment webhook must be csrf exempt, both in dev and in prod. This is because it originates from Stripe servers, and it doesn't know the csrf cookie in the user's browser. Meanwhile, the post request to generate a CheckoutSession object
-in the Django backend can and should include the crsf token, which you have to manually specify and include by iterating through the browser's cookie jar. This is because Django only automatically
-includes the csrf cookie in post requests if it's a form submission, and the form has the template tag {% csrf_token %} inside.
+- Stripe payment webhook must be csrf exempt, both in dev and in prod. This is because it originates from Stripe servers, and it doesn't know the csrf cookie in the user's browser. Meanwhile, the post request to generate a CheckoutSession object in the Django backend can and should include the crsf token, which you have to manually specify and include by iterating through the browser's cookie jar. This is because Django only automatically includes the csrf cookie in post requests if it's a form submission, and the form has the template tag {% csrf_token %} inside.
+- Django's runserver only servers your app/static static files if you have DEBUG=True
 - You can simulate the whole payment process, including successful and unsucessful transactions, for testing using the fake credit card numbers Stripe provides in their sandbox version of your account, and prompting your payment webhook through the Stripe CLI
 - I chose to use this js library called PDF.js to handle displaying the sheet music. I wanted to only display 3 pages of the sheets that cost money, and I thought that using this library would enable me to
 have more control over what I could display (as opposed to manually exporting the first 3 pages out of each pdf and using the browser's built-in pdf viewer), but ultimately I should have just used the built-in pdf viewer instead.
@@ -42,6 +41,7 @@ even if it's a little overkill; it's a lot easier to setup because you only have
 I found the default given httpd (apache) server config given by homebrew to be very verbose and hard to navigate,
 but to be fair, I'm not very familiar with Apache either.
 - Safari is kind of a b*tch. I spent around 2 hours trying to fix a bug where my embedded Stripe form wouldn't load on my website (Django kept throwing error 403 because it couldn't verify the origin of the post request to the create_checkout_sesh route), only for it to be because Safari itself defaults to stripping the origin and referrer for some reason. Chrome doesn't do this. I searched online and saw a bunch of fixes related to my Django apps settings.py; I tried them and none of them changed anything. At the end, I resorted to consulting Gemini, and all I had to do was add ```referrerPolicy: 'origin'``` while constructing the post req, which forces Safari to not strip away the origin and referrer headers so that Django doesn't panic.
+
 
 
 
