@@ -16,7 +16,7 @@ async function initialize() {
 
   const fetchClientSecret = async () => {
     //query app server (views.checkout) to create Stripe payment sesh, then return the sesh secret
-    const response = await fetch(checkoutview_appurl, {
+    const response = await fetch(checkoutview_appurl + "/", { //Django automatically redirects to endpoints with a /, this redirect causes issues in safari so have to manually include the slash
       method: "POST",
       headers: { 
         'Content-Type': 'application/json',
@@ -27,9 +27,6 @@ async function initialize() {
       mode: 'same-origin',
       body: JSON.stringify(POSTdata)
     });
-    if (!response.ok) {
-      console.error(response.text())
-    }
     const {clientSecret} = await response.json();
     return clientSecret;
   };
