@@ -27,6 +27,9 @@ async function initialize() {
       mode: 'same-origin',
       body: JSON.stringify(POSTdata)
     });
+    if (!response.ok) {
+      console.error(response.text())
+    }
     const {clientSecret} = await response.json();
     return clientSecret;
   };

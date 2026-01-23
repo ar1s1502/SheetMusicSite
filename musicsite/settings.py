@@ -38,6 +38,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '13.57.79.116', 'cappellacatalogue.co
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8081", #for nginx local dev
     "http://127.0.0.1:8081",
+    "https://cappellacatalogue.com",
+    "https://www.cappellacatalogue.com",
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -96,7 +98,7 @@ DATABASES = {
         'NAME': config('POSTGRES_DB'),
         'USER': config('POSTGRES_USER'),
         'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
