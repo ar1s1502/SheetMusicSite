@@ -41,6 +41,7 @@ even if it's a little overkill; it's a lot easier to setup because you only have
 I found the default given httpd (apache) server config given by homebrew to be very verbose and hard to navigate,
 but to be fair, I'm not very familiar with Apache either.
 - Safari is kind of a b*tch. I spent around 2 hours trying to fix a bug where my embedded Stripe form wouldn't load on my website (Django kept throwing error 403 because it couldn't verify the origin of the post request to the create_checkout_sesh route), only for it to be because Safari itself defaults to stripping the origin and referrer for some reason. Chrome doesn't do this. I searched online and saw a bunch of fixes related to my Django apps settings.py; I tried them and none of them changed anything. At the end, I resorted to consulting Gemini, and all I had to do was add ```referrerPolicy: 'origin'``` while constructing the post req, which forces Safari to not strip away the origin and referrer headers so that Django doesn't panic.
+- SSL RENEWAL: Let's Encrypt only gives you 3 months before your ssl certificate expires. certificates are located in the VM, and passed to Docker in compose.yaml. there is a tool, certbot, that can renew certificates/pull new ones for you. had to set up a systemd service to automatically stop docker nginx, renew, then restart docker. TODO is to create a new service that also waits for changes in github main branch and restarts docker automatically upon changes
 
 
 
