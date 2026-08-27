@@ -12,7 +12,13 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
     #   - POSTGRES_USER=${POSTGRES_USER}
     #   - POSTGRES_PASSWORD=${POSTGRES_PW}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
      
   web:
     build:  
@@ -31,6 +37,12 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
       - static_volume:/app/_static
     expose:
       - "8000"
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # environment:
     #   # django app environ var names, passed to container from host's .env
     #   - SECRET_KEY=${SECRET_KEY}
@@ -54,6 +66,11 @@ services: #start 3 containers for db (postgres), web (gunicorn wsgi + django), a
     
     depends_on:
       - web
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data:
