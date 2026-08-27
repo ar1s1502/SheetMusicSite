@@ -18,9 +18,8 @@ while form validating as well.
 
 
 ### Stuff I learned 
-- Stripe payment webhook must be csrf exempt, both in dev and in prod. This is because it originates from Stripe servers, and it doesn't know the csrf cookie in the user's browser. Meanwhile, the post request to generate a CheckoutSession object
-in the Django backend can and should include the crsf token, which you have to manually specify and include by iterating through the browser's cookie jar. This is because Django only automatically
-includes the csrf cookie in post requests if it's a form submission, and the form has the template tag {% csrf_token %} inside.
+- Stripe payment webhook must be csrf exempt, both in dev and in prod. This is because it originates from Stripe servers, and it doesn't know the csrf cookie in the user's browser. Meanwhile, the post request to generate a CheckoutSession object in the Django backend can and should include the crsf token, which you have to manually specify and include by iterating through the browser's cookie jar. This is because Django only automatically includes the csrf cookie in post requests if it's a form submission, and the form has the template tag {% csrf_token %} inside.
+- Django's runserver only servers your app/static static files if you have DEBUG=True
 - You can simulate the whole payment process, including successful and unsucessful transactions, for testing using the fake credit card numbers Stripe provides in their sandbox version of your account, and prompting your payment webhook through the Stripe CLI
 - I chose to use this js library called PDF.js to handle displaying the sheet music. I wanted to only display 3 pages of the sheets that cost money, and I thought that using this library would enable me to
 have more control over what I could display (as opposed to manually exporting the first 3 pages out of each pdf and using the browser's built-in pdf viewer), but ultimately I should have just used the built-in pdf viewer instead.
@@ -28,7 +27,7 @@ PDF.js draws the supplied PDF (in b64-encoded bytes) onto a specific canvas elem
 Bootstrap cards was an absolute pain. I ended up having to do some weird hack from Stack Overflow where you render the pdf on 2x scale (for better resolution), but later scale the actual rendered pdf
 down to fit in the desired dimensions, hence the weird stuff with canvas.height/width (the actual internal buffer of the canvas that the pdf is drawn on) and canvas.style.height/width (actual displayed sizing).
 - This and the Stripe integration meant a lot more time spent on javascript than I was hoping, but it did make me a lot more comfortable with working with javascript.
-- SMTP gmail server only lets you authenticate if you use SSL connection
+- SMTP gmail server only lets you authenticate if you use SSL connection. Additionally, the maximum file size attachable is pretty small; I can't even send the zip files (which are just zipped mp3's and a pdf) through them, only the .mscz files are small enough. If you want to attach larger files, you have to put the file on google drive, dropbox, etc.
 - How to use Docker compose. To be honest, I still don't feel very confident with Docker. There are 3 containers: nginx (the proxy server that also serves the static files), web (the Django app with Gunicorn WSGI), and 
 db (The postgres db). I think it was worth the extra headache of learning Docker though, since after setting it up correctly I could start all these services and stop them with singular commands: ```sudo docker compose up --build``` and ```sudo docker compose down```,
 as opposed to manually starting and stopping a postgres service, a gunicorn service, and an nginx service every time I had to update some code.
@@ -41,6 +40,11 @@ tbh, why is it called an _elastic_ IP if it doesn't change? Maybe because it can
 even if it's a little overkill; it's a lot easier to setup because you only have to work with one config file to set up your forwarding, your server IP / servername, SSL, etc., and the syntax is relatively intuitive.
 I found the default given httpd (apache) server config given by homebrew to be very verbose and hard to navigate,
 but to be fair, I'm not very familiar with Apache either.
+- Safari is kind of a b*tch. I spent around 2 hours trying to fix a bug where my embedded Stripe form wouldn't load on my website (Django kept throwing error 403 because it couldn't verify the origin of the post request to the create_checkout_sesh route), only for it to be because Safari itself defaults to stripping the origin and referrer for some reason. Chrome doesn't do this. I searched online and saw a bunch of fixes related to my Django apps settings.py; I tried them and none of them changed anything. At the end, I resorted to consulting Gemini, and all I had to do was add ```referrerPolicy: 'origin'``` while constructing the post req, which forces Safari to not strip away the origin and referrer headers so that Django doesn't panic.
+- SSL RENEWAL: Let's Encrypt only gives you 3 months before your ssl certificate expires. certificates are located in the VM, and passed to Docker in compose.yaml. there is a tool, certbot, that can renew certificates/pull new ones for you. had to set up a systemd service to automatically stop docker nginx, renew, then restart docker. TODO is to create a new service that also waits for changes in github main branch and restarts docker automatically upon changes
+
+
+
 
 
 
